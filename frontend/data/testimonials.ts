@@ -6,7 +6,7 @@ export const seedTestimonials: Testimonial[] = [
     id: "test-1",
     name: "Eng. Md. Faizul Bari",
     roleEn: "Executive Engineer, PGCB",
-    roleBn: "নির্বাহী প্রকৌশলী, পিিজিসিবি",
+    roleBn: "নির্বাহী প্রকৌশলী, পিজিসিবি",
     quoteEn: "Sunset Group's commitment to ethical hospitality and compliance with Company Act 1994 and Shariah governance creates an exemplary platform in Kuakata.", // TODO: CLIENT TO VERIFY
     quoteBn: "নৈতিক আতিথেয়তা এবং কোম্পানি আইন ১৯৯৪ ও শরীয়াহ তদারকি কমিটির নির্দেশনা মেনে সানসেট গ্রুপের প্রকল্প কুয়াকাটায় একটি ব্যতিক্রমী উদ্যোগ সৃষ্টি করেছে।", // TODO: CLIENT TO VERIFY
   },

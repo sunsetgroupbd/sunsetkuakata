@@ -6,7 +6,7 @@ interface PalmMarkProps {
   color?: string;
 }
 
-export function PalmMark({ className = "", size = 32, color = "#0F4D2A" }: PalmMarkProps) {
+export function PalmMark({ className = "", size = 32, color = "#1B8C4D" }: PalmMarkProps) {
   return (
     <svg
       width={size}

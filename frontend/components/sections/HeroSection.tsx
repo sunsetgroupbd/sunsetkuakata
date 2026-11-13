@@ -12,11 +12,11 @@ export function HeroSection() {
 
   const heroSlides = [
     {
-      src: "/images/hero1.jpg",
+      src: "/images/hero1.webp",
       alt: "Sunrise with traditional fishing boats along Kuakata coastal beach",
     },
     {
-      src: "/images/hero2.jpg",
+      src: "/images/hero2.webp",
       alt: "Golden hour sunset reflection over fishing fleet in Kuakata",
     },
   ];

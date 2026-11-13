@@ -24,10 +24,10 @@ export function FaqSection({ faqs }: FaqSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Left Column: Heading & Context (5 cols) */}
           <div className="lg:col-span-5 space-y-4">
-            <span className="text-xs uppercase tracking-[0.18em] font-medium text-grey-700">
+            <span className={`text-xs uppercase font-medium text-grey-700 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.18em]"}`}>
               {locale === "bn" ? "প্রয়োজনীয় প্রশ্নোত্তর" : "Common Inquiries"}
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-ink leading-tight">
+            <h2 className="font-serif text-3xl sm:text-4xl text-ink leading-tight font-semibold">
               {locale === "bn"
                 ? "আইনগত ও প্রকল্প সংক্রান্ত স্বচ্ছ ধারণা"
                 : "Legal Framework and Investment Clarity"}
@@ -39,8 +39,8 @@ export function FaqSection({ faqs }: FaqSectionProps) {
             </p>
           </div>
 
-          {/* Right Column: Accordion (7 cols) */}
-          <div className="lg:col-span-7 bg-white border border-ink/10 p-6 sm:p-8">
+          {/* Right Column: Accordion (7 cols) with rounded corners */}
+          <div className="lg:col-span-7 bg-white border border-ink/10 p-6 sm:p-8 rounded-2xl shadow-xs">
             <Accordion items={items} />
           </div>
         </div>

@@ -29,7 +29,7 @@ export function WaveBand({ className = "", height = 48 }: WaveBandProps) {
       {/* Layer 3: Green-900 Accent Stroke */}
       <path
         d="M0,40 C300,34 500,46 720,40 C940,34 1140,46 1440,40"
-        stroke="#0F4D2A"
+        stroke="#1B8C4D"
         strokeWidth="1.5"
         fill="none"
       />

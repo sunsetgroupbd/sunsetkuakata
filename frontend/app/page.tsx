@@ -28,25 +28,25 @@ export default async function HomePage() {
       {/* 1. Hero with cross-fade photography & user requested Bengali/English copy */}
       <HeroSection />
 
-      {/* 2. Our Projects (01, 02, 03, 04 cards matching Image 1) */}
+      {/* 2. Our Projects (01, 02, 03, 04, 05 cards) */}
       <ProjectsShowcase projects={projects} />
 
-      {/* 3. Hotel Ownership Packages (Platinum, Gold, Silver, Bronze matching Image 1) */}
-      <PackagesSection packages={packages} />
-
-      {/* 4. "Our Esteemed Partners & Sunset Family" Brochure Sections A, B & C */}
+      {/* 3. "Our Esteemed Partners & Sunset Family" Brochure Sections A, B & C */}
       <PartnersAndFamilySection />
 
-      {/* 5. What People Say (3 cards matching Image 1) */}
+      {/* 4. What People Say (sliding reviews) */}
       <TestimonialsSection testimonials={testimonials} />
 
-      {/* 7. Interactive Calculator Teaser */}
+      {/* 5. Ownership Packages (Platinum, Gold, Silver, Bronze) */}
+      <PackagesSection packages={packages} />
+
+      {/* 6. Interactive Calculator Teaser */}
       <CalculatorTeaser packages={packages} />
 
-      {/* 8. FAQ Section */}
+      {/* 7. FAQ Section */}
       <FaqSection faqs={faqs} />
 
-      {/* 9. Direct Hotline & WhatsApp CTA */}
+      {/* 8. Direct Hotline & WhatsApp CTA */}
       <FinalCta />
     </>
   );

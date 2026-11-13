@@ -5,7 +5,8 @@ import { Package, CalculatorConfig } from "@/lib/types";
 import { useLanguage, formatCurrencyBDT } from "@/lib/i18n";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Calculator, AlertCircle, Info, Calendar, DollarSign, Bookmark } from "lucide-react";
+import { Calculator, AlertCircle, Info, Calendar, Bookmark } from "lucide-react";
+import { BdtIcon } from "@/components/svg/BdtIcon";
 
 interface ProfitCalculatorClientProps {
   packages: Package[];
@@ -114,7 +115,7 @@ export function ProfitCalculatorClient({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
             <div className="space-y-1">
               <span className="text-xs text-grey-700 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-green-900" />
+                <BdtIcon className="w-3.5 h-3.5 text-green-900" />
                 {locale === "bn" ? "মোট প্যাকেজ মূল্য:" : "Total Package Price:"}
               </span>
               <div className="font-serif text-2xl text-ink font-medium tabular-nums">

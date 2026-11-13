@@ -25,7 +25,7 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center max-w-xl mx-auto mb-12 sm:mb-14 space-y-3">
-          <span className="text-xs uppercase tracking-[0.2em] font-semibold text-green-900 block">
+          <span className={`text-xs uppercase font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
             {locale === "bn" ? "মালিক ও অংশীদারদের অভিজ্ঞতা" : "Owner & Partner Testimonials"}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-ink font-semibold">

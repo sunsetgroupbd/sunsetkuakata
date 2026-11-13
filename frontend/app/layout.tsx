@@ -75,7 +75,7 @@ export const metadata: Metadata = {
       "Sunset Kuakata Hotel & Resort Limited, Company Act 1994. Discover prime hospitality and healthcare developments in Kuakata and Dhaka.",
     images: [
       {
-        url: "/images/hero1.jpg",
+        url: "/images/hero1.webp",
         width: 1200,
         height: 630,
         alt: "Sunset Kuakata Coastal Landscape",

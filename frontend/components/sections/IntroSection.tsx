@@ -16,7 +16,7 @@ export function IntroSection() {
           <div className="lg:col-span-5 flex justify-center">
             <div className="w-full max-w-[380px] aspect-[3/4]">
               <ArchImageMask
-                src="/images/hero2.jpg"
+                src="/images/hero2.webp"
                 alt="Coastal sunrise Kuakata"
                 className="w-full h-full"
               />

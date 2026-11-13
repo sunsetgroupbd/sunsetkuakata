@@ -13,7 +13,7 @@ export function FinalCta() {
     <section className="bg-white py-16 sm:py-24 border-b border-ink/10">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="border border-ink/10 bg-ash p-8 sm:p-12 md:p-16 text-center space-y-8 max-w-4xl mx-auto rounded-2xl shadow-sm">
-          <span className="text-xs uppercase tracking-[0.18em] font-medium text-grey-700">
+          <span className={`text-xs uppercase font-medium text-grey-700 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.18em]"}`}>
             {locale === "bn" ? "সরাসরি যোগাযোগ করুন" : "Direct Engagement"}
           </span>
 
@@ -54,9 +54,15 @@ export function FinalCta() {
           <div className="pt-8 border-t border-ink/10 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-grey-700 text-left max-w-2xl mx-auto">
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-green-900 flex-shrink-0 mt-0.5" />
-              <span>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Shaptak+Square+Dhanmondi+27+Dhaka"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-green-900 transition-colors"
+                title={locale === "bn" ? "গুগল ম্যাপে দেখুন" : "View on Google Maps"}
+              >
                 27 Shaptak Square, Lift-11 (Level-11), Plot-2 (New), Road no-16, Old Dhanmondi 27, Dhanmondi, Dhaka-1209
-              </span>
+              </a>
             </div>
             <div className="flex items-start gap-2">
               <Clock className="w-4 h-4 text-green-900 flex-shrink-0 mt-0.5" />

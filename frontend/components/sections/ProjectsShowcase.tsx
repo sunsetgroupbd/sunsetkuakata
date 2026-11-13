@@ -11,15 +11,193 @@ interface ProjectsShowcaseProps {
   projects: Project[];
 }
 
+function SuperComboMedia() {
+  const [index, setIndex] = React.useState(0);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  const slides = React.useMemo(
+    () => [
+      {
+        type: "collage" as const,
+        title: "4-in-1 Combo",
+      },
+      {
+        type: "single" as const,
+        src: "/images/sunsetkuakata.webp",
+        title: "Sunset Kuakata",
+      },
+      {
+        type: "single" as const,
+        src: "/images/suncare.webp",
+        title: "Sun Care Hospital",
+      },
+      {
+        type: "single" as const,
+        src: "/images/dfi-aerial.webp",
+        title: "DFI Fantasy Island",
+      },
+      {
+        type: "single" as const,
+        src: "/images/Mangrove.webp",
+        title: "Mangrove",
+      },
+    ],
+    []
+  );
+
+  React.useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % slides.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, [isPaused, slides.length]);
+
+  return (
+    <div
+      className="relative w-full h-full overflow-hidden select-none"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
+      <div
+        className="flex w-full h-full transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {/* Slide 0: 2x2 Collage */}
+        <div className="w-full h-full flex-shrink-0 relative grid grid-cols-2 grid-rows-2 gap-[1.5px] bg-white">
+          <div className="relative w-full h-full overflow-hidden bg-ash">
+            <Image
+              src="/images/sunsetkuakata.webp"
+              alt="Sunset Kuakata"
+              fill
+              sizes="(max-width: 640px) 25vw, 10vw"
+              className="object-cover"
+            />
+            <span className="absolute bottom-0.5 left-1 bg-black/60 text-white text-[7px] sm:text-[8px] px-1 rounded-xs">
+              Kuakata
+            </span>
+          </div>
+          <div className="relative w-full h-full overflow-hidden bg-ash">
+            <Image
+              src="/images/suncare.webp"
+              alt="Sun Care"
+              fill
+              sizes="(max-width: 640px) 25vw, 10vw"
+              className="object-cover"
+            />
+            <span className="absolute bottom-0.5 left-1 bg-black/60 text-white text-[7px] sm:text-[8px] px-1 rounded-xs">
+              Sun Care
+            </span>
+          </div>
+          <div className="relative w-full h-full overflow-hidden bg-ash">
+            <Image
+              src="/images/dfi-aerial.webp"
+              alt="DFI"
+              fill
+              sizes="(max-width: 640px) 25vw, 10vw"
+              className="object-cover"
+            />
+            <span className="absolute bottom-0.5 left-1 bg-black/60 text-white text-[7px] sm:text-[8px] px-1 rounded-xs">
+              DFI
+            </span>
+          </div>
+          <div className="relative w-full h-full overflow-hidden bg-ash">
+            <Image
+              src="/images/Mangrove.webp"
+              alt="Mangrove"
+              fill
+              sizes="(max-width: 640px) 25vw, 10vw"
+              className="object-cover"
+            />
+            <span className="absolute bottom-0.5 left-1 bg-black/60 text-white text-[7px] sm:text-[8px] px-1 rounded-xs">
+              Mangrove
+            </span>
+          </div>
+        </div>
+
+        {/* Slide 1: Sunset Kuakata */}
+        <div className="w-full h-full flex-shrink-0 relative">
+          <Image
+            src="/images/sunsetkuakata.webp"
+            alt="Sunset Kuakata"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover"
+          />
+        </div>
+
+        {/* Slide 2: Sun Care */}
+        <div className="w-full h-full flex-shrink-0 relative">
+          <Image
+            src="/images/suncare.webp"
+            alt="Sun Care Hospital"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover"
+          />
+        </div>
+
+        {/* Slide 3: DFI */}
+        <div className="w-full h-full flex-shrink-0 relative">
+          <Image
+            src="/images/dfi-aerial.webp"
+            alt="DFI Dhaka Fantasy Island"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover"
+          />
+        </div>
+
+        {/* Slide 4: Mangrove */}
+        <div className="w-full h-full flex-shrink-0 relative">
+          <Image
+            src="/images/Mangrove.webp"
+            alt="Mangrove"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover"
+          />
+        </div>
+      </div>
+
+      {/* Top Right Pill Badge */}
+      <div className="absolute top-2 right-2 bg-[#12406E]/85 backdrop-blur-xs text-white text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-full font-semibold z-10 shadow-xs pointer-events-none">
+        {slides[index].title}
+      </div>
+
+      {/* Slide Navigation Dots */}
+      <div className="absolute bottom-1.5 right-2 flex items-center gap-1 z-10 pointer-events-auto">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIndex(i);
+            }}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+              index === i ? "bg-white scale-125" : "bg-white/50 hover:bg-white/80"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProjectsShowcase({ projects }: ProjectsShowcaseProps) {
   const { locale, t } = useLanguage();
 
   const projectImages: { [slug: string]: string } = {
-    "kuakata-hotel": "/images/1.webp",
-    "sun-care": "/images/12.webp",
-    "dfi": "/images/13.webp",
-    "mangrove-kuakata": "/images/10.webp",
-    "super-combo": "/images/11.webp",
+    "kuakata-hotel": "/images/sunsetkuakata.webp",
+    "sun-care": "/images/suncare.webp",
+    "dfi": "/images/dfi-aerial.webp",
+    "mangrove-kuakata": "/images/Mangrove.webp",
+    "super-combo": "/images/sunsetkuakata.webp",
+    "the-deck": "/images/Thedeck.webp",
   };
 
   return (
@@ -32,8 +210,8 @@ export function ProjectsShowcase({ projects }: ProjectsShowcaseProps) {
           </h2>
         </div>
 
-        {/* 5 Cards Grid side-by-side - 2 per row on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6">
+        {/* Cards Grid: 2 per row on mobile, 3 per row on tablet & desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-6">
           {projects.map((proj, idx) => {
             const badgeNum = `0${idx + 1}`;
             const imageSrc = projectImages[proj.slug] || proj.heroImage;
@@ -46,17 +224,28 @@ export function ProjectsShowcase({ projects }: ProjectsShowcaseProps) {
                 <div>
                   {/* Image container with rounded top & overlapping circular badge */}
                   <div className="relative aspect-[16/11] w-full bg-sand overflow-hidden rounded-t-xl sm:rounded-t-2xl">
-                    <Image
-                      src={imageSrc}
-                      alt={t(proj, "name")}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                      className="object-cover transition-transform duration-500 hover:scale-[1.03]"
-                    />
+                    {proj.slug === "super-combo" ? (
+                      <SuperComboMedia />
+                    ) : (
+                      <Image
+                        src={imageSrc}
+                        alt={t(proj, "name")}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+                        className="object-cover transition-transform duration-500 hover:scale-[1.03]"
+                      />
+                    )}
                     {/* Circular dark green badge at bottom left of image */}
-                    <div className="absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-900 text-white flex items-center justify-center text-[10px] sm:text-xs font-bold border border-white">
+                    <div className="absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-900 text-white flex items-center justify-center text-[10px] sm:text-xs font-bold border border-white z-10 pointer-events-none">
                       {badgeNum}
                     </div>
+
+                    {/* Upcoming badge */}
+                    {proj.status === "upcoming" && (
+                      <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-amber-700/90 text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs shadow-xs z-10 pointer-events-none">
+                        {locale === "bn" ? "আসন্ন প্রকল্প" : "Upcoming"}
+                      </div>
+                    )}
                   </div>
 
                   {/* Text Content */}

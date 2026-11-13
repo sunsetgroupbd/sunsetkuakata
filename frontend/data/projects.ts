@@ -33,10 +33,11 @@ export const seedProjects: Project[] = [
       "কুয়াকাটার প্রাইম লোকেশনে দুটি হোটেল মালিকানা"
     ],
     location: "Kuakata, Patuakhali",
-    heroImage: "/images/hero1.jpg",
+    heroImage: "/images/sunsetkuakata.webp",
     gallery: [
-      "/images/hero1.jpg",
-      "/images/hero2.jpg"
+      "/images/sunsetkuakata.webp",
+      "/images/hero1.webp",
+      "/images/1.webp"
     ],
     order: 1,
     status: "active"
@@ -81,10 +82,11 @@ export const seedProjects: Project[] = [
       "১০০% নির্ভুল রোগ নির্ণয় // TODO: CLIENT TO VERIFY"
     ],
     location: "Mohammadpur / Basila, Dhaka",
-    heroImage: "/images/hero2.jpg",
+    heroImage: "/images/suncare.webp",
     gallery: [
-      "/images/hero2.jpg",
-      "/images/hero1.jpg"
+      "/images/suncare.webp",
+      "/images/12.webp",
+      "/images/hero2.webp"
     ],
     order: 2,
     status: "active"
@@ -117,10 +119,11 @@ export const seedProjects: Project[] = [
       "কর্মসংস্থান সৃষ্টি, সামাজিক মর্যাদা ও স্থায়ী সম্পদ গঠন"
     ],
     location: "Mohammadpur, Dhaka",
-    heroImage: "/images/hero1.jpg",
+    heroImage: "/images/dfi-aerial.webp",
     gallery: [
-      "/images/hero1.jpg",
-      "/images/hero2.jpg"
+      "/images/dfi-aerial.webp",
+      "/images/13.webp",
+      "/images/hero1.webp"
     ],
     order: 3,
     status: "active"
@@ -128,12 +131,12 @@ export const seedProjects: Project[] = [
   {
     id: "p-4",
     slug: "mangrove-kuakata",
-    nameEn: "Mangrove Sunset Kuakata Hotel & Resort Ltd.",
-    nameBn: "ম্যানগ্রোভ সানসেট কুয়াকাটা হোটেল অ্যান্ড রিসোর্ট লি.",
+    nameEn: "Mangrove",
+    nameBn: "ম্যানগ্রোভ",
     summaryEn: "Eco-luxury hotel & resort in Kuakata blending natural mangrove tranquility with world-class hospitality and saf-kabala registration.",
     summaryBn: "ম্যানগ্রোভ বনাঞ্চল ও সৈকতের সান্নিধ্যে বিশ্বমানের ইকো-লাক্সারি রিসোর্ট; সাফ-কবালা দলিলের মাধ্যমে স্থায়ী হালাল মালিকানা।",
-    bodyEn: "Mangrove Sunset Kuakata Hotel & Resort Ltd. is designed to provide guests with an unmatched combination of mangrove nature and upscale ethical hospitality. Offering guaranteed statutory saf-kabala registration, the project provides individual ownership, shared revenue participation, and round-the-year tourism demand under professional hotel management.",
-    bodyBn: "ম্যানগ্রোভ সানসেট কুয়াকাটা হোটেল অ্যান্ড রিসোর্ট লি. প্রকৃতির কোলে এক অনন্য ইকো-লাক্সারি ঠিকানা। সাফ-কবালা দলিলের মাধ্যমে ক্রেতাদের স্থায়ী মালিকানা নিশ্চিত করার পাশাপাশি আধুনিক পাঁচ তারকা মানের আতিথেয়তা ও শরীয়াহ-সম্মত লাভজনক রিটার্ন প্রদান করে।",
+    bodyEn: "Mangrove is designed to provide guests with an unmatched combination of mangrove nature and upscale ethical hospitality. Offering guaranteed statutory saf-kabala registration, the project provides individual ownership, shared revenue participation, and round-the-year tourism demand under professional hotel management.",
+    bodyBn: "ম্যানগ্রোভ প্রকৃতির কোলে এক অনন্য ইকো-লাক্সারি ঠিকানা। সাফ-কবালা দলিলের মাধ্যমে ক্রেতাদের স্থায়ী মালিকানা নিশ্চিত করার পাশাপাশি আধুনিক পাঁচ তারকা মানের আতিথেয়তা ও শরীয়াহ-সম্মত লাভজনক রিটার্ন প্রদান করে।",
     highlightsEn: [
       "Prime coastal location adjoining Kuakata mangrove belt",
       "Lifetime ownership via verified statutory Saf-Kabala registration",
@@ -149,11 +152,11 @@ export const seedProjects: Project[] = [
       "কেটিসি মাস্টার প্ল্যানের অধীনে সর্বোচ্চ মূলধনী প্রবৃদ্ধি"
     ],
     location: "Kuakata, Patuakhali",
-    heroImage: "/images/10.webp",
+    heroImage: "/images/Mangrove.webp",
     gallery: [
+      "/images/Mangrove.webp",
       "/images/10.webp",
-      "/images/1.webp",
-      "/images/hero1.jpg"
+      "/images/hero1.webp"
     ],
     order: 4,
     status: "active"
@@ -165,8 +168,8 @@ export const seedProjects: Project[] = [
     nameBn: "সুপার কম্বো ইনভেস্টমেন্ট",
     summaryEn: "Combined investment package across hotel, healthcare, and eco-resort assets.",
     summaryBn: "হোটেল, স্বাস্থ্যসেবা এবং ইকো-রিসোর্ট সম্পদের সমন্বিত ইনভেস্টমেন্ট প্যাকেজ।",
-    bodyEn: "A combined package offering participation across Sunset Kuakata Hotel & Resort, Sun Care Hospital, Mangrove Sunset, and Dhaka Fantasy Island.",
-    bodyBn: "সানসেট কুয়াকাটা হোটেল ও রিসোর্ট, সান কেয়ার হসপিটাল, ম্যানগ্রোভ সানসেট এবং ঢাকা ফ্যান্টাসি আইল্যান্ডের একটি সমন্বিত বিনিয়োগ প্যাকেজ।",
+    bodyEn: "A combined package offering participation across Sunset Kuakata Hotel & Resort, Sun Care Hospital, Mangrove, and Dhaka Fantasy Island.",
+    bodyBn: "সানসেট কুয়াকাটা হোটেল ও রিসোর্ট, সান কেয়ার হসপিটাল, ম্যানগ্রোভ এবং ঢাকা ফ্যান্টাসি আইল্যান্ডের একটি সমন্বিত বিনিয়োগ প্যাকেজ।",
     highlightsEn: [
       "Combined asset participation across hotel, healthcare & eco-resort",
       "Saf-kabala ownership where applicable",
@@ -180,12 +183,49 @@ export const seedProjects: Project[] = [
       "বহুমাত্রিক হালাল রাজস্ব মডেল"
     ],
     location: "Kuakata & Dhaka",
-    heroImage: "/images/hero2.jpg",
+    heroImage: "/images/hero2.webp",
     gallery: [
-      "/images/hero2.jpg",
-      "/images/hero1.jpg"
+      "/images/hero2.webp",
+      "/images/hero1.webp"
     ],
     order: 5,
+    status: "active"
+  },
+  {
+    id: "p-6",
+    slug: "the-deck",
+    nameEn: "The Deck",
+    nameBn: "দ্য ডেক",
+    summaryEn: "Upcoming signature beachfront luxury resort in Cox's Bazar with freehold saf-kabala ownership and Shariah-compliant returns.",
+    summaryBn: "কক্সবাজারের মনোরম সৈকত ঘিরে সানসেট গ্রুপের আসন্ন পাঁচ তারকা সমমানের লাক্সারি রিসোর্ট; আজীবন সাফ-কবালা মালিকানা ও হালাল অংশীদারিত্ব।",
+    bodyEn: "The Deck is an upcoming signature beachfront resort and hospitality landmark situated in Bangladesh's premier tourism capital, Cox's Bazar. Designed with world-class coastal architecture, uninterrupted panoramic views of the Bay of Bengal, and structured under Company Act 1994 governance, The Deck offers prime freehold saf-kabala ownership and high-yield Shariah-compliant returns for visionary investors.",
+    bodyBn: "দ্য ডেক হলো পর্যটন রাজধানী কক্সবাজারের প্রাইম বিচফ্রন্টে সানসেট গ্রুপের একটি আসন্ন আন্তর্জাতিক মানের বিলাসবহুল রিসোর্ট ও হসপিটালিটি প্রকল্প। আধুনিক নান্দনিক স্থাপত্য, বঙ্গোপসাগরের প্যানোরামিক সমুদ্র দৃশ্য এবং কোম্পানি আইন ১৯৯৪ এর পূর্ণ আইনি কাঠামোর অধীনে পরিচালিত এই প্রকল্প নিশ্চিত করে আজীবন নির্ভরযোগ্য সাফ-কবালা মালিকানা ও শরীয়াহ-সম্মত সর্বোচ্চ মুনাফাজনক রিটার্ন।",
+    highlightsEn: [
+      "Prime beachfront location in Cox's Bazar",
+      "Upcoming iconic luxury resort & ethical hospitality destination",
+      "Panoramic unobstructed views of the Bay of Bengal",
+      "Lifetime ownership via verified statutory Saf-Kabala registration",
+      "Halal & Shariah-compliant high-yield profit distribution",
+      "Five-star equivalent amenities: infinity pool, private beach access & fine dining",
+      "Exceptional capital growth in Bangladesh's top tourism hub"
+    ],
+    highlightsBn: [
+      "কক্সবাজারের প্রাইম বিচফ্রন্ট উপকূলীয় অবস্থান",
+      "আসন্ন আইকনিক লাক্সারি রিসোর্ট ও আন্তর্জাতিক আতিথেয়তা",
+      "বঙ্গোপসাগরের মনোরম প্যানোরামিক সমুদ্র দৃশ্য",
+      "বিধিবদ্ধ সাফ-কবালা দলিলের মাধ্যমে আজীবন আইনগত মালিকানা",
+      "হালাল ও শরীয়াহ নির্দেশিকা মেনে নিয়মিত মুনাফা বণ্টন",
+      "পাঁচ তারকা সমমানের সুবিধা: ইনফিনিটি পুল, প্রাইভেট বিচ ও বিশ্বমানের রেস্তোরাঁ",
+      "দেশের শীর্ষ পর্যটন কেন্দ্রে সর্বোচ্চ মূলধনী প্রবৃদ্ধি"
+    ],
+    location: "Cox's Bazar",
+    heroImage: "/images/Thedeck.webp",
+    gallery: [
+      "/images/Thedeck.webp",
+      "/images/hero1.webp",
+      "/images/hero2.webp"
+    ],
+    order: 6,
     status: "upcoming"
   }
 ];

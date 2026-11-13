@@ -16,27 +16,37 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
   const tierStyles: {
     [slug: string]: {
       headerBg: string;
+      accentBorder: string;
+      buttonHover: string;
       titleEn: string;
       titleBn: string;
     };
   } = {
     platinum: {
-      headerBg: "bg-green-900",
+      headerBg: "bg-[#2D3748]",
+      accentBorder: "hover:border-[#4A5568]",
+      buttonHover: "hover:bg-[#2D3748] hover:text-white hover:border-[#2D3748]",
       titleEn: "Platinum",
       titleBn: "প্লাটিনাম",
     },
     gold: {
-      headerBg: "bg-[#12406E]",
+      headerBg: "bg-[#B8860B]",
+      accentBorder: "hover:border-[#D4AF37]",
+      buttonHover: "hover:bg-[#B8860B] hover:text-white hover:border-[#B8860B]",
       titleEn: "Gold",
       titleBn: "গোল্ড",
     },
     silver: {
-      headerBg: "bg-[#2B7BB9]",
+      headerBg: "bg-[#64748B]",
+      accentBorder: "hover:border-[#94A3B8]",
+      buttonHover: "hover:bg-[#64748B] hover:text-white hover:border-[#64748B]",
       titleEn: "Silver",
       titleBn: "সিলভার",
     },
     bronze: {
-      headerBg: "bg-[#0B2545]",
+      headerBg: "bg-[#8C4A1D]",
+      accentBorder: "hover:border-[#A0522D]",
+      buttonHover: "hover:bg-[#8C4A1D] hover:text-white hover:border-[#8C4A1D]",
       titleEn: "Bronze",
       titleBn: "ব্রোঞ্জ",
     },
@@ -56,7 +66,7 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
         {/* Section Header matching Image 1 */}
         <div className="text-center max-w-xl mx-auto mb-14 space-y-3">
           <h2 className="font-serif text-3xl sm:text-4xl text-ink font-semibold">
-            {locale === "bn" ? "হোটেল মালিকানা প্যাকেজসমূহ" : "Hotel Ownership Packages"}
+            {locale === "bn" ? "মালিকানা প্যাকেজসমূহ" : "Ownership Packages"}
           </h2>
         </div>
 
@@ -72,14 +82,14 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
             return (
               <div
                 key={pkg.id}
-                className="border border-ink/10 bg-white rounded-xl sm:rounded-2xl overflow-hidden flex flex-col justify-between transition-colors hover:border-ink/30 shadow-xs hover:shadow-sm"
+                className={`border border-ink/10 bg-white rounded-xl sm:rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 ${tier.accentBorder} shadow-xs hover:shadow-md`}
               >
                 <div>
                   {/* Colored Header Banner with Crown Icon */}
                   <div
-                    className={`${tier.headerBg} text-white py-2.5 sm:py-4 px-2 sm:px-4 flex items-center justify-center gap-1.5 sm:gap-2 text-center rounded-t-xl sm:rounded-t-2xl`}
+                    className={`${tier.headerBg} text-white py-2.5 sm:py-4 px-2 sm:px-4 flex items-center justify-center gap-1.5 sm:gap-2 text-center rounded-t-xl sm:rounded-t-2xl shadow-xs`}
                   >
-                    <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90" />
+                    <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/95" />
                     <span className="font-serif text-xs sm:text-base md:text-lg font-medium tracking-wide">
                       {locale === "bn" ? tier.titleBn : tier.titleEn}
                     </span>
@@ -120,7 +130,7 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                 <div className="p-3 sm:p-5 pt-0">
                   <Link
                     href={`/contact?package=${pkg.slug}`}
-                    className="block w-full py-2 sm:py-3 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-lg border border-ink/20 text-ink hover:bg-green-900 hover:text-white hover:border-green-900 transition-colors duration-200"
+                    className={`block w-full py-2 sm:py-3 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-lg border border-ink/20 text-ink ${tier.buttonHover} transition-colors duration-200`}
                   >
                     {locale === "bn" ? "আবেদন করুন" : "Apply for Booking"}
                   </Link>

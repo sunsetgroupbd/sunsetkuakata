@@ -52,8 +52,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Read from cookie or localStorage
     const match = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);
-    if (match && (match[1] === "bn" || match[1] === "en")) {
-      setLocaleState(match[1] as Locale);
+    const activeLocale = match && (match[1] === "bn" || match[1] === "en") ? (match[1] as Locale) : "bn";
+    setLocaleState(activeLocale);
+    if (typeof document !== "undefined" && document.documentElement) {
+      document.documentElement.lang = activeLocale;
+      document.documentElement.setAttribute("data-lang", activeLocale);
     }
   }, []);
 
@@ -61,8 +64,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     startTransition(() => {
       setLocaleState(newLocale);
       document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
-      if (document.documentElement) {
+      if (typeof document !== "undefined" && document.documentElement) {
         document.documentElement.lang = newLocale;
+        document.documentElement.setAttribute("data-lang", newLocale);
       }
     });
   };

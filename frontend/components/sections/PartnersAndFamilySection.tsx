@@ -137,7 +137,7 @@ export function PartnersAndFamilySection() {
         {/* ======================================================== */}
         <div className="space-y-10 pt-4">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#12406E] block">
+            <span className={`text-xs uppercase font-semibold text-[#12406E] block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
               {locale === "bn" ? "অংশীদারী নেটওয়ার্ক" : "Alliances & Networks"}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-ink font-semibold">
@@ -179,9 +179,9 @@ export function PartnersAndFamilySection() {
               </div>
             </div>
 
-            {/* Line 2: Sliding Left to Right (Logos 8-14) */}
+            {/* Line 2: Sliding Right to Left (Logos 8-14) */}
             <div className="flex overflow-hidden">
-              <div className="animate-marquee-ltr-slow flex gap-4 sm:gap-6">
+              <div className="animate-marquee-rtl flex gap-4 sm:gap-6">
                 {[...partnerLogos.slice(7, 14), ...partnerLogos.slice(7, 14), ...partnerLogos.slice(7, 14)].map((partner, idx) => (
                   <div
                     key={`line2-${partner.id}-${idx}`}

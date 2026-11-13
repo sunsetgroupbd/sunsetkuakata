@@ -17,7 +17,7 @@ export function Button({
 }: ButtonProps) {
   // Rectangular, 2px radius, solid fill + 1px border, solid color swap on hover, NO shadows, NO gradients
   const baseClasses =
-    "inline-flex items-center justify-center text-sm font-medium tracking-wide uppercase px-6 py-3.5 transition-colors duration-200 rounded-xl border whitespace-nowrap cursor-pointer";
+    "inline-flex items-center justify-center text-sm font-medium uppercase px-6 py-3.5 transition-colors duration-200 rounded-xl border whitespace-nowrap cursor-pointer";
 
   const variantClasses = {
     primary:

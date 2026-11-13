@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n";
-import { Target, Rocket, Scale, ShieldCheck, Landmark } from "lucide-react";
+import { Scale, ShieldCheck, Landmark } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -11,6 +11,7 @@ interface Leader {
   name: string;
   roleEn: string;
   roleBn: string;
+  image: string;
 }
 
 const leaders: Leader[] = [
@@ -18,31 +19,37 @@ const leaders: Leader[] = [
     name: "Engr. Monjurrul Hasan Khan",
     roleEn: "Chairman",
     roleBn: "চেয়ারম্যান",
+    image: "/images/monjurulhasan.webp",
   },
   {
     name: "S. M. Shahjahan",
     roleEn: "Managing Director",
     roleBn: "ব্যবস্থাপনা পরিচালক",
+    image: "/images/Shahjahan.webp",
   },
   {
     name: "Emdadul Haque",
     roleEn: "Additional Managing Director",
     roleBn: "অতিরিক্ত ব্যবস্থাপনা পরিচালক",
+    image: "/images/Emdadul-Haque.webp",
   },
   {
     name: "Engr. Ibrahim Khalil Nahid",
     roleEn: "Deputy Managing Director",
     roleBn: "উপ-ব্যবস্থাপনা পরিচালক",
+    image: "/images/Nahid.webp",
   },
   {
     name: "Protiva Shaon",
     roleEn: "Director",
     roleBn: "পরিচালক",
+    image: "/images/Protiva.webp",
   },
   {
     name: "Shahinu Akter (Joya)",
     roleEn: "Director",
     roleBn: "পরিচালক",
+    image: "/images/Shahinu.webp",
   },
 ];
 
@@ -57,7 +64,7 @@ export function AboutClient() {
         {/* 1. HERO / TITLE SECTION                                  */}
         {/* ======================================================== */}
         <div className="max-w-3xl space-y-4">
-          <span className="text-xs uppercase tracking-[0.2em] font-semibold text-green-900 block">
+          <span className={`text-xs uppercase font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
             {locale === "bn" ? "আমাদের কথা" : "Our Story"}
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-ink leading-tight font-semibold">
@@ -89,7 +96,7 @@ export function AboutClient() {
         {/* ======================================================== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-ink/10 bg-ash/50 rounded-2xl p-6 sm:p-10">
           <div className="lg:col-span-7 space-y-5">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#12406E] block">
+            <span className={`text-xs uppercase font-semibold text-[#12406E] block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
               {locale === "bn" ? "নৈতিক আতিথেয়তা ও হালাল বিনিয়োগ" : "Ethical Hospitality & Halal Investment"}
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-ink font-semibold leading-snug">
@@ -114,7 +121,7 @@ export function AboutClient() {
 
           <div className="lg:col-span-5 relative aspect-[16/11] rounded-xl overflow-hidden border border-ink/10 bg-white shadow-sm">
             <Image
-              src="/images/hero1.jpg"
+              src="/images/hero1.webp"
               alt="Sunset Kuakata Coastline & Architecture"
               fill
               sizes="(max-width: 1024px) 100vw, 480px"
@@ -127,13 +134,13 @@ export function AboutClient() {
         {/* ======================================================== */}
         {/* 3. VISION & MISSION                                      */}
         {/* ======================================================== */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
           {/* Vision */}
-          <div className="border border-green-900/20 bg-white rounded-2xl p-6 sm:p-10 space-y-4 shadow-sm hover:border-green-900/40 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-green-900/10 text-green-900 flex items-center justify-center">
-              <Target className="w-6 h-6" />
-            </div>
-            <h3 className="font-serif text-2xl font-bold text-ink">
+          <div className="border border-green-900/20 bg-white rounded-2xl p-6 sm:p-10 space-y-3 sm:space-y-4 shadow-xs hover:border-green-900/40 transition-all">
+            <span className={`text-[11px] sm:text-xs uppercase font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
+              {locale === "bn" ? "ভবিষ্যৎ দৃষ্টিভঙ্গি" : "Strategic Vision"}
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
               {locale === "bn" ? "আমাদের ভিশন" : "Our Vision"}
             </h3>
             <p className="text-sm sm:text-base text-grey-700 leading-relaxed">
@@ -144,11 +151,11 @@ export function AboutClient() {
           </div>
 
           {/* Mission */}
-          <div className="border border-[#12406E]/20 bg-white rounded-2xl p-6 sm:p-10 space-y-4 shadow-sm hover:border-[#12406E]/40 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-[#12406E]/10 text-[#12406E] flex items-center justify-center">
-              <Rocket className="w-6 h-6" />
-            </div>
-            <h3 className="font-serif text-2xl font-bold text-ink">
+          <div className="border border-[#12406E]/20 bg-white rounded-2xl p-6 sm:p-10 space-y-3 sm:space-y-4 shadow-xs hover:border-[#12406E]/40 transition-all">
+            <span className={`text-[11px] sm:text-xs uppercase font-semibold text-[#12406E] block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
+              {locale === "bn" ? "প্রাতিষ্ঠানিক লক্ষ্য" : "Corporate Mission"}
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
               {locale === "bn" ? "আমাদের মিশন" : "Our Mission"}
             </h3>
             <p className="text-sm sm:text-base text-grey-700 leading-relaxed">
@@ -164,7 +171,7 @@ export function AboutClient() {
         {/* ======================================================== */}
         <div className="border border-ink/10 bg-white rounded-2xl p-6 sm:p-12 space-y-6">
           <div className="space-y-2">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-green-900 block">
+            <span className={`text-xs uppercase font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
               {locale === "bn" ? "আমাদের যাত্রা" : "Our Journey"}
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-ink font-semibold">
@@ -217,7 +224,7 @@ export function AboutClient() {
         {/* ======================================================== */}
         <div className="space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-3">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-green-900 block">
+            <span className={`text-xs uppercase font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-[0.2em]"}`}>
               {locale === "bn" ? "পরিচালনা পর্ষদ" : "Board of Directors"}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-ink font-semibold">
@@ -234,25 +241,24 @@ export function AboutClient() {
             {leaders.map((leader) => (
               <div
                 key={leader.name}
-                className="border border-ink/10 bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-7 space-y-3 sm:space-y-4 hover:border-green-900/40 shadow-xs hover:shadow-sm transition-all group"
+                className="border border-ink/10 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4 hover:border-green-900/40 shadow-xs hover:shadow-md transition-all group"
               >
-                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
-                  <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-ash border border-ink/10 flex items-center justify-center text-green-900 font-serif font-bold text-sm sm:text-lg group-hover:bg-green-900 group-hover:text-white transition-colors duration-200 flex-shrink-0">
-                    {leader.name
-                      .split(" ")
-                      .filter((p) => !p.includes("."))
-                      .slice(0, 2)
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-green-900 block line-clamp-1">
-                      {locale === "bn" ? leader.roleBn : leader.roleEn}
-                    </span>
-                    <h3 className="font-serif text-xs sm:text-lg font-semibold text-ink leading-snug line-clamp-2">
-                      {leader.name}
-                    </h3>
-                  </div>
+                <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-green-900/20 group-hover:border-green-900 transition-all duration-300 shadow-sm bg-ash flex-shrink-0">
+                  <Image
+                    src={leader.image}
+                    alt={leader.name}
+                    fill
+                    sizes="(max-width: 640px) 80px, 112px"
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="space-y-1 w-full">
+                  <span className={`text-[10px] sm:text-xs font-semibold text-green-900 block ${locale === "bn" ? "tracking-normal" : "tracking-wider uppercase"}`}>
+                    {locale === "bn" ? leader.roleBn : leader.roleEn}
+                  </span>
+                  <h3 className="font-serif text-sm sm:text-lg font-semibold text-ink leading-snug">
+                    {leader.name}
+                  </h3>
                 </div>
               </div>
             ))}
@@ -262,35 +268,37 @@ export function AboutClient() {
         {/* ======================================================== */}
         {/* 6. STATUTORY & SHARIAH PILLARS                            */}
         {/* ======================================================== */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 pt-4">
-          <Card variant="sand" className="space-y-2 sm:space-y-3 p-4 sm:p-6">
-            <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-green-900" />
-            <h3 className="font-serif text-sm sm:text-lg font-semibold text-ink">Company Act 1994</h3>
-            <p className="text-[11px] sm:text-sm text-grey-700 leading-relaxed">
+        <div className="grid grid-cols-3 gap-2 sm:gap-6 pt-4">
+          <Card variant="sand" className="space-y-1.5 sm:space-y-3 p-2.5 sm:p-6 flex flex-col justify-start">
+            <Scale className="w-4 h-4 sm:w-6 sm:h-6 text-green-900 flex-shrink-0" />
+            <h3 className="font-serif text-[11px] sm:text-lg font-semibold text-ink leading-tight">
+              Company Act 1994
+            </h3>
+            <p className="text-[9.5px] sm:text-sm text-grey-700 leading-snug sm:leading-relaxed">
               {locale === "bn"
                 ? "কোম্পানি আইন ১৯৯৪ অনুযায়ী সম্পূর্ণ বিধিবদ্ধভাবে নিবন্ধিত ও পরিচালিত প্রাইভেট লিমিটেড প্রতিষ্ঠান।"
                 : "A statutory private limited entity registered and governed under the Company Act 1994."}
             </p>
           </Card>
 
-          <Card variant="sand" className="space-y-2 sm:space-y-3 p-4 sm:p-6">
-            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-green-900" />
-            <h3 className="font-serif text-sm sm:text-lg font-semibold text-ink">
-              {locale === "bn" ? "শরীয়াহ তত্ত্বাবধান কমিটি" : "Shariah Supervisory Committee"}
+          <Card variant="sand" className="space-y-1.5 sm:space-y-3 p-2.5 sm:p-6 flex flex-col justify-start">
+            <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-green-900 flex-shrink-0" />
+            <h3 className="font-serif text-[11px] sm:text-lg font-semibold text-ink leading-tight">
+              {locale === "bn" ? "শরীয়াহ কমিটি" : "Shariah Committee"}
             </h3>
-            <p className="text-[11px] sm:text-sm text-grey-700 leading-relaxed">
+            <p className="text-[9.5px] sm:text-sm text-grey-700 leading-snug sm:leading-relaxed">
               {locale === "bn"
                 ? "হালাল বিনিয়োগ ও নৈতিক মুনাফা কাঠামো নিশ্চিত করতে গঠিত স্বাধীন শরীয়াহ পর্যবেক্ষণ পর্ষদ।"
                 : "Independent Shariah supervisory board ensuring halal revenue frameworks and ethical profit distribution."}
             </p>
           </Card>
 
-          <Card variant="sand" className="space-y-2 sm:space-y-3 p-4 sm:p-6 col-span-2 md:col-span-1">
-            <Landmark className="w-5 h-5 sm:w-6 sm:h-6 text-green-900" />
-            <h3 className="font-serif text-sm sm:text-lg font-semibold text-ink">
-              {locale === "bn" ? "সাফ-কবালা আইনগত মালিকানা" : "Saf-Kabala Legal Title"}
+          <Card variant="sand" className="space-y-1.5 sm:space-y-3 p-2.5 sm:p-6 flex flex-col justify-start">
+            <Landmark className="w-4 h-4 sm:w-6 sm:h-6 text-green-900 flex-shrink-0" />
+            <h3 className="font-serif text-[11px] sm:text-lg font-semibold text-ink leading-tight">
+              {locale === "bn" ? "সাফ-কবালা দলিল" : "Saf-Kabala Title"}
             </h3>
-            <p className="text-[11px] sm:text-sm text-grey-700 leading-relaxed">
+            <p className="text-[9.5px] sm:text-sm text-grey-700 leading-snug sm:leading-relaxed">
               {locale === "bn"
                 ? "সাব-রেজিস্ট্রি অফিসের মাধ্যমে আজীবন হস্তান্তরযোগ্য ও সুরক্ষিত সাফ-কবালা রেজিস্ট্রেশন দলিল।"
                 : "Lifetime inheritable and secure ownership deeds executed through statutory Sub-Registry offices."}

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-green-900: #156B3A;
-  --color-green-600: #1E8A3C;
+  --color-green-900: #1B8C4D;
+  --color-green-600: #27AE60;
   --color-red: #E5312B;
   --color-blue-800: #12406E;
   --color-blue-500: #2B7BB9;
@@ -21,8 +21,8 @@
 @layer base {
   :root {
     --header-h: 80px;
-    --color-green-900: #156B3A;
-    --color-green-600: #1E8A3C;
+    --color-green-900: #1B8C4D;
+    --color-green-600: #27AE60;
     --color-red: #E5312B;
     --color-blue-800: #12406E;
     --color-blue-500: #2B7BB9;
@@ -55,6 +55,16 @@
     outline: 2px solid var(--color-green-900);
     outline-offset: 2px;
   }
+
+  /* Never apply letter-spacing (tracking) to Bengali text to prevent breaking ligatures/conjuncts */
+  html[lang="bn"],
+  html[lang="bn"] *,
+  [lang="bn"],
+  [lang="bn"] *,
+  .font-bn,
+  .font-bn * {
+    letter-spacing: normal !important;
+  }
 }
 
 @keyframes marquee-ltr {
@@ -63,6 +73,15 @@
   }
   100% {
     transform: translateX(0%);
+  }
+}
+
+@keyframes marquee-rtl {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
@@ -75,18 +94,25 @@
 .animate-marquee-ltr-slow {
   display: flex;
   width: max-content;
-  animation: marquee-ltr 36s linear infinite;
+  animation: marquee-ltr 34s linear infinite;
 }
 
-.animate-marquee-ltr-fast {
+.animate-marquee-rtl {
   display: flex;
   width: max-content;
-  animation: marquee-ltr 22s linear infinite;
+  animation: marquee-rtl 28s linear infinite;
+}
+
+.animate-marquee-rtl-slow {
+  display: flex;
+  width: max-content;
+  animation: marquee-rtl 34s linear infinite;
 }
 
 .animate-marquee-ltr:hover,
 .animate-marquee-ltr-slow:hover,
-.animate-marquee-ltr-fast:hover,
+.animate-marquee-rtl:hover,
+.animate-marquee-rtl-slow:hover,
 .animate-marquee-testimonials:hover {
   animation-play-state: paused;
 }
@@ -96,5 +122,19 @@
   width: max-content;
   animation: marquee-ltr 38s linear infinite;
 }
+
+/* Social icon branded hover styles in footer */
+.group:hover .group-hover\:instagram-gradient,
+.instagram-gradient:hover {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+  color: #ffffff !important;
+}
+
+.group:hover .group-hover\:youtube-red,
+.youtube-red:hover {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+}
+
 
 

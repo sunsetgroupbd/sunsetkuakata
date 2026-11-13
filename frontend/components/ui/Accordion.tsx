@@ -23,22 +23,24 @@ export function Accordion({ items, className = "" }: AccordionProps) {
   };
 
   return (
-    <div className={`divide-y divide-ink/10 border-y border-ink/10 ${className}`}>
+    <div className={`divide-y divide-ink/10 ${className}`}>
       {items.map((item) => {
         const isOpen = openId === item.id;
         return (
-          <div key={item.id} className="py-4">
+          <div key={item.id} className="py-4 first:pt-0 last:pb-0">
             <button
               onClick={() => toggle(item.id)}
-              className="w-full flex items-center justify-between text-left py-2 font-serif text-lg md:text-xl text-ink hover:text-green-900 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between text-left py-2 font-serif text-base sm:text-lg md:text-xl text-ink hover:text-green-900 transition-colors cursor-pointer group"
               aria-expanded={isOpen}
             >
-              <span className="pr-4">{item.title}</span>
-              <ChevronDown
-                className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 text-grey-700 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
+              <span className="pr-4 font-semibold">{item.title}</span>
+              <div className="w-8 h-8 rounded-full bg-ash border border-ink/10 flex items-center justify-center flex-shrink-0 group-hover:border-green-900/40 transition-colors">
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 text-grey-700 ${
+                    isOpen ? "rotate-180 text-green-900" : ""
+                  }`}
+                />
+              </div>
             </button>
             <AnimatePresence initial={false}>
               {isOpen && (
