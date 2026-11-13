@@ -27,7 +27,7 @@ export function PartnersAndFamilySection() {
     <div
       key={photo.id}
       onClick={() => setSelectedPhoto(photo)}
-      className="group relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden border border-ink/10 bg-white cursor-pointer shadow-xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
+      className="group relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden border border-ink/10 bg-white cursor-pointer shadow-xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
     >
       <Image
         src={photo.src}
@@ -217,7 +217,7 @@ export function PartnersAndFamilySection() {
             onClick={() => setSelectedPhoto(null)}
           >
             <div
-              className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden border border-white/20"
+              className="relative max-w-4xl w-full bg-white rounded-xl overflow-hidden border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
               <button
