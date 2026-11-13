@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-green-900: #156B3A;
+  --color-green-600: #1E8A3C;
+  --color-red: #E5312B;
+  --color-blue-800: #12406E;
+  --color-blue-500: #2B7BB9;
+  --color-grey-700: #525B64;
+  --color-ink: #111827;
+  --color-paper: #FFFFFF;
+  --color-sand: #F3F4F6;
+  --color-ash: #F8F9FA;
+
+  --font-serif: var(--font-poppins), var(--font-hind-siliguri), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-poppins), var(--font-hind-siliguri), system-ui, -apple-system, sans-serif;
+  --font-bn-serif: var(--font-hind-siliguri), system-ui, -apple-system, sans-serif;
+  --font-bn-sans: var(--font-hind-siliguri), system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  :root {
+    --header-h: 80px;
+    --color-green-900: #156B3A;
+    --color-green-600: #1E8A3C;
+    --color-red: #E5312B;
+    --color-blue-800: #12406E;
+    --color-blue-500: #2B7BB9;
+    --color-grey-700: #525B64;
+    --color-ink: #111827;
+    --color-paper: #FFFFFF;
+    --color-sand: #F3F4F6;
+    --color-ash: #F8F9FA;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    color: #111827;
+  }
+
+  body {
+    background-color: #FFFFFF;
+    color: #111827;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Focus ring for accessibility: 2px solid hairline */
+  *:focus-visible {
+    outline: 2px solid var(--color-green-900);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 28s linear infinite;
+}
+
+.animate-marquee-ltr-slow {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 36s linear infinite;
+}
+
+.animate-marquee-ltr-fast {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 22s linear infinite;
+}
+
+.animate-marquee-ltr:hover,
+.animate-marquee-ltr-slow:hover,
+.animate-marquee-ltr-fast:hover,
+.animate-marquee-testimonials:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-testimonials {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 38s linear infinite;
+}
+
+
