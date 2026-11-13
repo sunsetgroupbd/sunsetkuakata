@@ -4,7 +4,20 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe } from "lucide-react";
+import {
+  Menu,
+  X,
+  Globe,
+  Home,
+  Building2,
+  PackageCheck,
+  Calculator,
+  TrendingUp,
+  Images,
+  Newspaper,
+  Users,
+  PhoneCall,
+} from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
 export function Header() {
@@ -25,12 +38,25 @@ export function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const navItems = [
+  const desktopNavItems = [
     { href: "/", labelEn: "Home", labelBn: "হোম" },
     { href: "/projects", labelEn: "Projects", labelBn: "প্রকল্পসমূহ" },
     { href: "/packages", labelEn: "Investment Packages", labelBn: "প্যাকেজসমূহ" },
+    { href: "/profit-calculator", labelEn: "Calculator", labelBn: "ক্যালকুলেটর" },
     { href: "/about", labelEn: "Our Story", labelBn: "আমাদের কথা" },
     { href: "/contact", labelEn: "Contact", labelBn: "যোগাযোগ" },
+  ];
+
+  const mobileNavItems = [
+    { href: "/", labelEn: "Home", labelBn: "হোম", icon: Home },
+    { href: "/projects", labelEn: "Projects", labelBn: "প্রকল্পসমূহ", icon: Building2 },
+    { href: "/packages", labelEn: "Ownership Packages", labelBn: "মালিকানা প্যাকেজসমূহ", icon: PackageCheck },
+    { href: "/profit-calculator", labelEn: "Profit Calculator", labelBn: "মুনাফা ক্যালকুলেটর", icon: Calculator },
+    { href: "/source-of-income", labelEn: "Source of Income", labelBn: "আয়ের উৎস ও ব্যবসায়িক মডেল", icon: TrendingUp },
+    { href: "/gallery", labelEn: "Photo Gallery", labelBn: "ফটো গ্যালারি", icon: Images },
+    { href: "/blogs", labelEn: "News & Insights", labelBn: "খবর ও ব্লগ", icon: Newspaper },
+    { href: "/about", labelEn: "Our Story & Leadership", labelBn: "আমাদের কথা ও নেতৃত্ব", icon: Users },
+    { href: "/contact", labelEn: "Contact Us", labelBn: "যোগাযোগ", icon: PhoneCall },
   ];
 
   return (
@@ -57,7 +83,7 @@ export function Header() {
 
           {/* Desktop Nav - Clean centered links matching Image 1 */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-sm font-medium">
-            {navItems.map((item, idx) => {
+            {desktopNavItems.map((item, idx) => {
               const isActive =
                 item.href === "/"
                   ? pathname === "/"
@@ -102,64 +128,104 @@ export function Header() {
           </div>
 
           {/* Mobile hamburger button */}
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex items-center gap-2.5 lg:hidden">
             <button
               onClick={toggleLocale}
-              className="px-2 py-1 border border-ink/20 text-xs font-medium text-ink"
+              className="px-2.5 py-1.5 border border-ink/20 rounded-lg text-xs font-medium text-ink hover:bg-ash transition-colors cursor-pointer"
+              aria-label="Toggle language"
             >
               {locale === "bn" ? "EN" : "বাংলা"}
             </button>
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 border border-ink/20 text-ink hover:bg-ash"
+              className="p-2 border border-ink/20 rounded-lg text-ink hover:bg-ash transition-colors cursor-pointer"
               aria-label="Open Navigation Menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-green-900 text-paper flex flex-col p-6 sm:p-8 overflow-y-auto">
-          <div className="flex items-center justify-between pb-6 border-b border-paper/20">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-              <span className="font-serif text-xl text-paper tracking-wider">SUNSET GROUP</span>
+        <div className="fixed inset-0 z-50 bg-white text-ink flex flex-col overflow-y-auto">
+          {/* Header Bar */}
+          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md px-5 py-4 flex items-center justify-between border-b border-ink/10 shadow-2xs">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+              <div className="relative w-36 sm:w-40 h-10">
+                <Image
+                  src="/logo.png"
+                  alt="Sunset Kuakata Hotel & Resort"
+                  fill
+                  sizes="160px"
+                  className="object-contain object-left"
+                  priority
+                />
+              </div>
             </Link>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 text-paper hover:text-sand border border-paper/30"
+              className="p-2 text-ink hover:text-green-900 border border-ink/15 hover:border-ink/40 rounded-lg transition-colors cursor-pointer bg-ash/50"
               aria-label="Close Navigation Menu"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
-          <nav className="flex flex-col space-y-5 py-8">
-            {navItems.map((item, idx) => (
-              <Link
-                key={idx}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="font-serif text-2xl text-paper hover:text-sand"
-              >
-                {locale === "bn" ? item.labelBn : item.labelEn}
-              </Link>
-            ))}
+          {/* Navigation Links - All Site Options Visible */}
+          <nav className="flex flex-col px-4 py-3 divide-y divide-ink/5">
+            {mobileNavItems.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`py-3 px-3 rounded-xl flex items-center justify-between transition-colors ${
+                    isActive
+                      ? "bg-green-900/10 text-green-900 font-semibold"
+                      : "text-ink/85 hover:text-green-900 hover:bg-ash/70"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-green-900" : "text-grey-700"}`} />
+                    <span className="font-serif text-sm sm:text-base font-medium">
+                      {locale === "bn" ? item.labelBn : item.labelEn}
+                    </span>
+                  </div>
+                  <span className={`text-xs ${isActive ? "text-green-900 font-bold" : "text-grey-700/60"}`}>
+                    →
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="mt-auto pt-6 border-t border-paper/20 flex flex-col gap-4">
+          {/* Footer Actions */}
+          <div className="mt-auto p-5 border-t border-ink/10 bg-ash/60 flex flex-col gap-3.5">
+            {/* Primary Action Button */}
             <Link
               href="/contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center bg-sand text-ink py-3 border border-sand font-semibold uppercase tracking-wider text-sm rounded-xl"
+              className="w-full text-center bg-green-900 hover:bg-green-600 text-white py-3.5 font-semibold uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-xs transition-colors"
             >
               {locale === "bn" ? "যোগাযোগ করুন" : "Get In Touch"}
             </Link>
-            <div className="flex items-center justify-between text-xs text-paper/70">
-              <span>Hotline: +8801325074535</span>
-              <button onClick={toggleLocale} className="underline">
+
+            {/* Hotline & Language Switcher */}
+            <div className="flex items-center justify-between pt-1 text-xs text-grey-700">
+              <a href="tel:+8801325074535" className="hover:text-green-900 transition-colors font-medium">
+                Hotline: +8801325074535
+              </a>
+              <button
+                onClick={toggleLocale}
+                className="font-semibold text-green-900 hover:underline cursor-pointer"
+              >
                 {locale === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
               </button>
             </div>
