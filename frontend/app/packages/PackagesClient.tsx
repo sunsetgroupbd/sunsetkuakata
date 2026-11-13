@@ -27,8 +27,8 @@ export function PackagesClient({ packages }: PackagesClientProps) {
           </h1>
           <p className="text-base text-grey-700 leading-relaxed">
             {isBn
-              ? "আমাদের সম্পদ মালিকানা স্তরের জন্য স্বচ্ছ মূল্য তালিকা, বুকিং শিডিউল এবং মুনাফার সময়কাল।"
-              : "Transparent pricing, booking schedules, and profit period days across our asset ownership tiers."}
+              ? "আমাদের সম্পদ মালিকানা স্তরের জন্য স্বচ্ছ মূল্য তালিকা, বুকিং শিডিউল এবং আবাসন সুবিধা।"
+              : "Transparent pricing, booking schedules, space allocations, and accommodation days across our asset ownership tiers."}
           </p>
         </div>
       </div>

@@ -1,11 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Package, CalculatorConfig } from "@/lib/types";
-import { useLanguage, formatCurrencyBDT } from "@/lib/i18n";
+import { useLanguage, formatCurrencyBDT, formatLakhBDT, toBengaliNumber } from "@/lib/i18n";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Calculator, AlertCircle, Info, Calendar, Bookmark } from "lucide-react";
+import {
+  Calculator,
+  Calendar,
+  Bookmark,
+  CheckCircle2,
+  Clock,
+  Home,
+  ShieldCheck,
+  Users,
+  Percent,
+  PhoneCall,
+  Sparkles,
+} from "lucide-react";
 import { BdtIcon } from "@/components/svg/BdtIcon";
 
 interface ProfitCalculatorClientProps {
@@ -19,189 +32,391 @@ export function ProfitCalculatorClient({
   config,
   initialPackageSlug,
 }: ProfitCalculatorClientProps) {
-  const { locale, t, formatNumber } = useLanguage();
+  const { locale, formatNumber } = useLanguage();
+  const isBn = locale === "bn";
 
   const [mode, setMode] = useState<"package" | "custom">("package");
-  const [selectedSlug, setSelectedSlug] = useState<string>(
-    initialPackageSlug || packages[0]?.slug || "platinum"
-  );
+
+  // Project Filter Tabs
+  const projectTabs = [
+    { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
+    { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
+    { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
+    { slug: "dfi", nameEn: "DFI Fantasy Island", nameBn: "ডিএফআই ফ্যান্টাসি আইল্যান্ড" },
+  ];
+
+  const [selectedProject, setSelectedProject] = useState<string>("super-combo");
+
+  // Filter packages for selected project
+  const availablePackages = packages.filter((p) => p.projectSlug === selectedProject);
+  const currentProjectPackages = availablePackages.length > 0 ? availablePackages : packages.slice(0, 4);
+
+  // Selected package tier
+  const [selectedTier, setSelectedTier] = useState<string>("bronze");
+
+  // Installment period simulator (0 = full payment, 12, 24, 36 months)
+  const [installmentMonths, setInstallmentMonths] = useState<number>(24);
+
+  // Custom mode amount
   const [customAmount, setCustomAmount] = useState<number>(1000000);
 
-  const selectedPkg = packages.find((p) => p.slug === selectedSlug) || packages[0];
-  const activeRate = config.rates[selectedSlug];
+  // Match selected package
+  const selectedPkg =
+    currentProjectPackages.find((p) => p.tier.toLowerCase() === selectedTier.toLowerCase()) ||
+    currentProjectPackages[0];
 
   // Calculated values
   const currentPrice = mode === "package" ? selectedPkg.price : customAmount;
   const currentBooking = mode === "package" ? selectedPkg.bookingMoney : Math.round(customAmount * 0.25);
   const currentRemaining = currentPrice - currentBooking;
-  const currentPeriod = mode === "package" ? selectedPkg.profitPeriodDays : 30;
+  const estimatedMonthly =
+    installmentMonths > 0 ? Math.round(currentRemaining / installmentMonths) : null;
 
-  // Illustrative projection if rate is defined
-  const illustrativeReturn = activeRate ? Math.round((currentPrice * activeRate) / 100) : null;
+  // Space allocation detail
+  const renderAreaDetail = (pkg: Package) => {
+    if (pkg.landSft !== undefined && pkg.buildSft !== undefined) {
+      if (isBn) {
+        return `জমি ${toBengaliNumber(pkg.landSft)} sft + নির্মাণ ${toBengaliNumber(pkg.buildSft)} sft = মোট ${toBengaliNumber(pkg.areaSft)} sft`;
+      }
+      return `Land ${pkg.landSft} sft + Build ${pkg.buildSft} sft = Total ${pkg.areaSft} sft`;
+    }
+    if (isBn) {
+      return `মোট এরিয়া: ${toBengaliNumber(pkg.areaSft)} sft`;
+    }
+    return `Total Area: ${pkg.areaSft} sft`;
+  };
+
+  const customPresets = [500000, 1000000, 2500000, 5000000, 10000000];
 
   return (
-    <div className="space-y-12 max-w-4xl mx-auto">
+    <div className="space-y-10 max-w-4xl mx-auto">
       {/* Mode Selector */}
-      <div className="flex border border-ink/15 rounded-xl overflow-hidden max-w-xs mx-auto shadow-xs">
+      <div className="flex border border-ink/15 rounded-xl overflow-hidden max-w-sm mx-auto shadow-xs bg-white p-1">
         <button
           onClick={() => setMode("package")}
-          className={`flex-1 py-2.5 text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
-            mode === "package" ? "bg-green-900 text-white" : "bg-white text-ink hover:bg-ash"
+          className={`flex-1 py-2.5 px-3 text-xs uppercase tracking-wider font-semibold rounded-lg transition-all cursor-pointer ${
+            mode === "package"
+              ? "bg-green-900 text-white shadow-xs"
+              : "bg-transparent text-ink hover:text-green-900 hover:bg-ash"
           }`}
         >
-          {locale === "bn" ? "প্যাকেজ নির্বাচন" : "Select Package"}
+          {isBn ? "প্যাকেজ ভিত্তিক হিসাব" : "Select by Package"}
         </button>
         <button
           onClick={() => setMode("custom")}
-          className={`flex-1 py-2.5 text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
-            mode === "custom" ? "bg-green-900 text-white" : "bg-white text-ink hover:bg-ash"
+          className={`flex-1 py-2.5 px-3 text-xs uppercase tracking-wider font-semibold rounded-lg transition-all cursor-pointer ${
+            mode === "custom"
+              ? "bg-green-900 text-white shadow-xs"
+              : "bg-transparent text-ink hover:text-green-900 hover:bg-ash"
           }`}
         >
-          {locale === "bn" ? "কাস্টম পরিমাণ" : "Custom Amount"}
+          {isBn ? "কাস্টম বিনিয়োগ হিসাব" : "Custom Amount"}
         </button>
       </div>
 
       {/* Main Calculator Card */}
-      <Card variant="white" className="space-y-8 p-6 sm:p-12 rounded-2xl shadow-sm">
+      <Card variant="white" className="space-y-8 p-5 sm:p-10 rounded-2xl shadow-sm border border-ink/10">
         {mode === "package" ? (
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-grey-700 font-medium mb-3">
-              {locale === "bn" ? "হোটেল মালিকানা প্যাকেজ:" : "Hotel Ownership Package:"}
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {packages.map((pkg) => (
-                <button
-                  key={pkg.id}
-                  onClick={() => setSelectedSlug(pkg.slug)}
-                  className={`py-3 px-4 border text-center transition-all cursor-pointer rounded-xl ${
-                    selectedSlug === pkg.slug
-                      ? "border-green-900 bg-green-900 text-white font-medium shadow-sm"
-                      : "border-ink/15 bg-paper text-ink hover:border-green-900/50"
-                  }`}
-                >
-                  <div className="text-xs uppercase tracking-wider font-semibold">{t(pkg, "name").split(" ")[0]}</div>
-                  <div className="text-[11px] opacity-80 mt-1 tabular-nums font-medium">
-                    {formatCurrencyBDT(pkg.price, locale)}
-                  </div>
-                </button>
-              ))}
+          <div className="space-y-6">
+            {/* Step 1: Select Project */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-green-900 text-white flex items-center justify-center text-[10px] font-bold">
+                  ১
+                </span>
+                <label className="text-xs uppercase tracking-wider text-grey-700 font-semibold">
+                  {isBn ? "প্রকল্প নির্বাচন করুন:" : "1. Select Project:"}
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                {projectTabs.map((tab) => (
+                  <button
+                    key={tab.slug}
+                    onClick={() => {
+                      setSelectedProject(tab.slug);
+                    }}
+                    className={`py-2.5 px-3 text-xs font-semibold rounded-xl border text-center transition-all cursor-pointer ${
+                      selectedProject === tab.slug
+                        ? "bg-green-900 text-white border-green-900 shadow-xs"
+                        : "bg-paper text-ink border-ink/15 hover:border-green-900/40 hover:bg-ash"
+                    }`}
+                  >
+                    {isBn ? tab.nameBn : tab.nameEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Step 2: Select Tier */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-green-900 text-white flex items-center justify-center text-[10px] font-bold">
+                  ২
+                </span>
+                <label className="text-xs uppercase tracking-wider text-grey-700 font-semibold">
+                  {isBn ? "মালিকানা প্যাকেজ স্তর নির্বাচন করুন:" : "2. Select Ownership Tier:"}
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                {currentProjectPackages.map((pkg) => {
+                  const isSelected = selectedTier.toLowerCase() === pkg.tier.toLowerCase();
+                  return (
+                    <button
+                      key={pkg.id}
+                      onClick={() => setSelectedTier(pkg.tier.toLowerCase())}
+                      className={`p-3 sm:p-4 border text-center transition-all cursor-pointer rounded-xl flex flex-col justify-between ${
+                        isSelected
+                          ? "border-green-900 bg-green-900/5 ring-2 ring-green-900 shadow-sm"
+                          : "border-ink/15 bg-paper text-ink hover:border-green-900/40"
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="font-serif text-sm sm:text-base font-bold text-ink">
+                            {isBn ? pkg.nameBn.split(" ")[0] : pkg.tier}
+                          </span>
+                        </div>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-sand font-medium text-grey-700 block">
+                          {pkg.unitMultiplier}x {isBn ? "ইউনিট" : "Unit"}
+                        </span>
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-ink/10">
+                        <div className="text-xs sm:text-sm font-bold text-green-900 font-serif tabular-nums">
+                          {formatLakhBDT(pkg.price, locale)}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-grey-700 font-medium mb-2">
-              {locale === "bn" ? "আপনার প্রস্তাবিত বিনিয়োগের পরিমাণ (BDT):" : "Proposed Investment Amount (BDT):"}
+          <div className="space-y-4">
+            <label className="block text-xs uppercase tracking-wider text-grey-700 font-semibold">
+              {isBn ? "প্রস্তাবিত বিনিয়োগের পরিমাণ নির্বাচন বা টাইপ করুন (BDT):" : "Proposed Investment Amount (BDT):"}
             </label>
-            <input
-              type="number"
-              min="100000"
-              step="50000"
-              value={customAmount}
-              onChange={(e) => setCustomAmount(Math.max(0, Number(e.target.value)))}
-              className="w-full border border-ink/20 px-4 py-3 bg-paper text-ink font-serif text-xl rounded-xl focus:border-green-900 focus:outline-none"
-            />
-            <span className="text-[11px] text-grey-700 mt-1 block">
-              {locale === "bn" ? "প্রস্তাবিত বুকিং মানি আনুমানিক ২৫%" : "Estimated booking money ~25%"}
+
+            {/* Quick preset buttons */}
+            <div className="flex flex-wrap gap-2">
+              {customPresets.map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => setCustomAmount(amount)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                    customAmount === amount
+                      ? "bg-green-900 text-white border-green-900"
+                      : "bg-paper text-ink border-ink/15 hover:border-green-900/40"
+                  }`}
+                >
+                  {formatLakhBDT(amount, locale)}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative">
+              <input
+                type="number"
+                min="100000"
+                step="50000"
+                value={customAmount}
+                onChange={(e) => setCustomAmount(Math.max(0, Number(e.target.value)))}
+                className="w-full border border-ink/20 px-4 py-3 bg-paper text-ink font-serif text-2xl font-bold rounded-xl focus:border-green-900 focus:outline-none tabular-nums"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-grey-700">
+                BDT (টাকা)
+              </span>
+            </div>
+            <span className="text-[11px] text-grey-700 block">
+              {isBn
+                ? "প্রস্তাবিত প্রারম্ভিক বুকিং মানি আনুমানিক ২৫% (বাকি টাকা কিস্তিতে পরিশোধযোগ্য)"
+                : "Standard estimated booking money ~25% (balance payable in flexible installments)"}
             </span>
           </div>
         )}
 
-        {/* Breakdown Summary */}
-        <div className="border border-ink/10 bg-ash p-6 sm:p-8 space-y-4 rounded-2xl shadow-xs">
-          <h3 className="font-serif text-lg text-ink">
-            {locale === "bn" ? "হিসাব ও অর্থ পরিশোধ বিবরণী" : "Financial Breakdown Summary"}
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-            <div className="space-y-1">
-              <span className="text-xs text-grey-700 flex items-center gap-1.5">
-                <BdtIcon className="w-3.5 h-3.5 text-green-900" />
-                {locale === "bn" ? "মোট প্যাকেজ মূল্য:" : "Total Package Price:"}
-              </span>
-              <div className="font-serif text-2xl text-ink font-medium tabular-nums">
-                {formatCurrencyBDT(currentPrice, locale)}
-              </div>
+        {/* Step 3: Installment Period Simulator */}
+        <div className="pt-4 border-t border-ink/10 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-green-900" />
+              <label className="text-xs uppercase tracking-wider text-grey-700 font-semibold">
+                {isBn ? "পরিশোধের সময়কাল / কিস্তির মেয়াদ:" : "Installment Period / Schedule:"}
+              </label>
             </div>
+            <span className="text-[11px] text-grey-700">
+              {isBn ? "(বুকিং পরবর্তী অবশিষ্ট ব্যালেন্সের কিস্তি)" : "(For balance after booking money)"}
+            </span>
+          </div>
 
-            <div className="space-y-1">
-              <span className="text-xs text-grey-700 flex items-center gap-1.5">
-                <Bookmark className="w-3.5 h-3.5 text-green-900" />
-                {locale === "bn" ? "প্রারম্ভিক বুকিং মানি:" : "Initial Booking Money:"}
-              </span>
-              <div className="font-serif text-2xl text-green-900 font-medium tabular-nums">
-                {formatCurrencyBDT(currentBooking, locale)}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-xs text-grey-700">
-                {locale === "bn" ? "অবশিষ্ট পরিশোধযোগ্য পরিমাণ:" : "Remaining Balance Payable:"}
-              </span>
-              <div className="font-serif text-xl text-ink font-medium tabular-nums">
-                {formatCurrencyBDT(currentRemaining, locale)}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-xs text-grey-700 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-green-900" />
-                {locale === "bn" ? "মুনাফা বণ্টন সময়কাল:" : "Profit Period:"}
-              </span>
-              <div className="text-base font-semibold text-ink tabular-nums">
-                {formatNumber(currentPeriod)} {locale === "bn" ? "দিন" : "days"}
-              </div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            {[
+              { months: 0, labelEn: "Full Payment", labelBn: "এককালীন" },
+              { months: 12, labelEn: "12 Months (1 yr)", labelBn: "১২ মাস (১ বছর)" },
+              { months: 24, labelEn: "24 Months (2 yrs)", labelBn: "২৪ মাস (২ বছর)" },
+              { months: 36, labelEn: "36 Months (3 yrs)", labelBn: "৩৬ মাস (৩ বছর)" },
+            ].map((option) => (
+              <button
+                key={option.months}
+                onClick={() => setInstallmentMonths(option.months)}
+                className={`py-2 px-3 text-xs font-semibold rounded-lg border text-center transition-all cursor-pointer ${
+                  installmentMonths === option.months
+                    ? "bg-green-900 text-white border-green-900 shadow-xs"
+                    : "bg-paper text-ink border-ink/15 hover:border-green-900/40"
+                }`}
+              >
+                {isBn ? option.labelBn : option.labelEn}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Rate & Projection Logic (As strictly specified) */}
-        <div className="border border-ink/10 p-6 space-y-3 bg-paper">
-          {activeRate === null || activeRate === undefined ? (
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-grey-700 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <h4 className="font-serif text-base text-ink font-medium">
-                  {locale === "bn" ? "প্রক্ষেপণ প্রাপ্তি সাপেক্ষে উপলব্ধ" : "Projection Available on Request"}
-                </h4>
-                <p className="text-xs text-grey-700 leading-relaxed">
-                  {locale === "bn"
-                    ? "কোম্পানি আইন ১৯৯৪ এবং শরীয়াহ নির্দেশিকা অনুসারে কোনো প্রকার নিশ্চিত বা পূর্বনির্ধারিত লাভ ধার্য করা হয় না। প্রকৃত হোটেল পরিচালনা ফলাফল ও অংশীদারী চুক্তির ভিত্তিতে নির্দিষ্ট প্রক্ষেপণ সরাসরি যোগাযোগের মাধ্যমে সরবরাহ করা হয়।"
-                    : "As per statutory and Shariah guidelines, fixed or guaranteed return rates are not published. Detailed illustrative schedules and partnership deeds are provided upon direct formal consultation."}
-                </p>
+        {/* Financial Breakdown & Summary Box */}
+        <div className="border border-green-900/20 bg-green-900/5 p-5 sm:p-8 space-y-5 rounded-2xl shadow-xs">
+          <div className="flex items-center justify-between border-b border-green-900/15 pb-3">
+            <h3 className="font-serif text-base sm:text-lg text-ink font-bold">
+              {isBn ? "হিসাব ও অর্থ পরিশোধ বিবরণী" : "Financial Breakdown & Allocation"}
+            </h3>
+            <span className="text-xs font-semibold text-green-900 bg-white px-2.5 py-1 rounded-full border border-green-900/20 shadow-2xs">
+              {mode === "package" ? `${selectedPkg.unitMultiplier}x Unit Share` : "Custom Share"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            {/* Total Price */}
+            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
+              <span className="text-[11px] text-grey-700 uppercase tracking-wider block">
+                {isBn ? "মোট প্যাকেজ মূল্য" : "Total Package Price"}
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-bold text-ink tabular-nums">
+                {formatLakhBDT(currentPrice, locale)}
+              </div>
+              <div className="text-[10px] text-grey-700">
+                (৳ {currentPrice.toLocaleString("en-IN")})
               </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs text-grey-700 uppercase tracking-wider">
-                  {locale === "bn" ? "আনুমানিক প্রক্ষেপণ:" : "Illustrative Projection:"}
+
+            {/* Booking Money */}
+            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
+              <span className="text-[11px] text-grey-700 uppercase tracking-wider flex items-center gap-1">
+                <Bookmark className="w-3 h-3 text-green-900" />
+                {isBn ? "প্রারম্ভিক বুকিং মানি" : "Initial Booking"}
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-bold text-green-900 tabular-nums">
+                {formatLakhBDT(currentBooking, locale)}
+              </div>
+              <div className="text-[10px] text-grey-700">
+                (৳ {currentBooking.toLocaleString("en-IN")})
+              </div>
+            </div>
+
+            {/* Remaining Balance */}
+            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
+              <span className="text-[11px] text-grey-700 uppercase tracking-wider block">
+                {isBn ? "অবশিষ্ট পরিশোধযোগ্য" : "Remaining Balance"}
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-bold text-ink tabular-nums">
+                {formatLakhBDT(currentRemaining, locale)}
+              </div>
+              <div className="text-[10px] text-grey-700">
+                (৳ {currentRemaining.toLocaleString("en-IN")})
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Installment Highlight (If installment selected) */}
+          {estimatedMonthly && installmentMonths > 0 && (
+            <div className="bg-white p-4 sm:p-5 rounded-xl border-2 border-green-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+              <div>
+                <span className="text-xs uppercase tracking-wider font-semibold text-green-900 block">
+                  {isBn ? "সম্ভাব্য মাসিক কিস্তি:" : "Estimated Monthly Installment:"}
                 </span>
-                <span className="font-serif text-xl text-green-900 font-medium tabular-nums">
-                  {illustrativeReturn ? formatCurrencyBDT(illustrativeReturn, locale) : "—"}
+                <p className="text-xs text-grey-700">
+                  {isBn
+                    ? `${installmentMonths} মাসে পরিশোধযোগ্য সমান কিস্তি (বিনা সুদে)`
+                    : `Payable across ${installmentMonths} equal monthly installments`}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="font-serif text-2xl sm:text-3xl font-extrabold text-green-900 tabular-nums">
+                  ৳ {estimatedMonthly.toLocaleString("en-IN")}
+                  <span className="text-xs font-normal text-grey-700 ml-1">
+                    /{isBn ? "মাস" : "mo"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Space & Accommodation Details */}
+          {mode === "package" && (
+            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-3 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-ink/5">
+                <span className="text-grey-700 font-medium">
+                  {isBn ? "জমি ও নির্মাণ স্পেস বরাদ্দ:" : "Space Allocation:"}
+                </span>
+                <span className="font-serif font-bold text-ink">
+                  {renderAreaDetail(selectedPkg)}
                 </span>
               </div>
-              <div className="flex items-start gap-2 pt-2 border-t border-ink/10 text-[11px] text-red font-medium">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span>
-                  Illustrative estimate only. Not a guarantee of returns.
-                </span>
+
+              {(selectedPkg.stayDays || selectedPkg.stayDaysDfi) && (
+                <div className="flex items-center justify-between pb-2 border-b border-ink/5">
+                  <span className="text-grey-700 font-medium flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-green-900" />
+                    {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
+                  </span>
+                  <span className="font-serif font-bold text-ink">
+                    {selectedPkg.stayDaysDfi
+                      ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(selectedPkg.stayDays || 0)}d + DFI ${formatNumber(selectedPkg.stayDaysDfi)}d`
+                      : `${formatNumber(selectedPkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
+                  </span>
+                </div>
+              )}
+
+              {/* Extra Benefits */}
+              <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-grey-700">
+                {selectedPkg.nominatedPeople && (
+                  <span className="flex items-center gap-1 text-ink font-medium">
+                    <Users className="w-3.5 h-3.5 text-green-900" />
+                    {isBn ? `মনোনীত ব্যক্তি: ${selectedPkg.nominatedPeople} জন` : `Nominated: ${selectedPkg.nominatedPeople} Persons`}
+                  </span>
+                )}
+                {selectedPkg.insuranceCoverage && (
+                  <span className="flex items-center gap-1 text-ink font-medium">
+                    <ShieldCheck className="w-3.5 h-3.5 text-green-900" />
+                    {isBn ? `জীবন বীমা: ${formatLakhBDT(selectedPkg.insuranceCoverage, locale)}` : `Insurance: ${formatLakhBDT(selectedPkg.insuranceCoverage, locale)}`}
+                  </span>
+                )}
+                {selectedPkg.discountPercent && (
+                  <span className="flex items-center gap-1 text-ink font-medium">
+                    <Percent className="w-3.5 h-3.5 text-green-900" />
+                    {isBn ? `রিসোর্ট ডিসকাউন্ট: ${selectedPkg.discountPercent}%` : `Discount: ${selectedPkg.discountPercent}%`}
+                  </span>
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {/* CTA */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-ink/10">
-          <Button href={`/contact?package=${selectedSlug}`} variant="primary">
-            {locale === "bn" ? "এই প্যাকেজে বুকিং করুন" : "Apply for This Package"}
-          </Button>
+        {/* CTA & Next Steps */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-ink/10">
+          <Link
+            href={`/contact?project=${mode === "package" ? selectedProject : "super-combo"}&package=${mode === "package" ? selectedTier : ""}`}
+            className="w-full sm:w-auto px-8 py-3.5 bg-green-900 hover:bg-green-600 text-white text-xs sm:text-sm font-semibold rounded-xl text-center transition-colors shadow-xs"
+          >
+            {isBn ? "এই প্যাকেজে বুকিং আবেদন করুন →" : "Apply for This Booking →"}
+          </Link>
 
-          <Button href="tel:+8801325074535" variant="outline">
-            {locale === "bn" ? "পরামর্শের জন্য কল করুন" : "Consultation: +8801325074535"}
+          <Button href="tel:+8801325074535" variant="outline" className="w-full sm:w-auto rounded-xl">
+            <PhoneCall className="w-4 h-4 mr-2 text-green-900" />
+            <span>{isBn ? "পরামর্শের জন্য কল করুন: +8801325074535" : "Call Advisor: +8801325074535"}</span>
           </Button>
         </div>
       </Card>
     </div>
   );
 }
-

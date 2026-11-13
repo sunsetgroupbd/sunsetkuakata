@@ -34,9 +34,19 @@ interface InquiryFormProps {
   initialPackage?: string;
 }
 
-export function InquiryForm({ initialProject = "kuakata-hotel", initialPackage = "" }: InquiryFormProps) {
+export function InquiryForm({ initialProject = "super-combo", initialPackage = "" }: InquiryFormProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
+
+  const normalizedPackage = React.useMemo(() => {
+    if (!initialPackage) return "";
+    const lower = initialPackage.toLowerCase();
+    if (lower.includes("platinum")) return "platinum";
+    if (lower.includes("gold")) return "gold";
+    if (lower.includes("silver")) return "silver";
+    if (lower.includes("bronze")) return "bronze";
+    return initialPackage;
+  }, [initialPackage]);
 
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [feedbackMessage, setFeedbackMessage] = useState<string>("");
@@ -52,8 +62,8 @@ export function InquiryForm({ initialProject = "kuakata-hotel", initialPackage =
       fullName: "",
       phone: "",
       email: "",
-      projectSlug: initialProject,
-      packageSlug: initialPackage,
+      projectSlug: initialProject || "super-combo",
+      packageSlug: normalizedPackage,
       message: "",
       website: "",
     },
@@ -201,6 +211,9 @@ export function InquiryForm({ initialProject = "kuakata-hotel", initialPackage =
               {...register("projectSlug")}
               className="w-full border border-ink/20 px-3 py-2.5 bg-paper text-ink text-sm rounded-xl focus:border-green-900 focus:outline-none disabled:opacity-60 cursor-pointer"
             >
+              <option value="super-combo">
+                {isBn ? "সুপার কম্বো ইনভেস্টমেন্ট (৪-ইন-১)" : "Super Combo Investment (4-in-1)"}
+              </option>
               <option value="kuakata-hotel">
                 {isBn ? "সানসেট কুয়াকাটা হোটেল অ্যান্ড রিসোর্ট" : "Sunset Kuakata Hotel & Resort"}
               </option>
@@ -212,9 +225,6 @@ export function InquiryForm({ initialProject = "kuakata-hotel", initialPackage =
               </option>
               <option value="mangrove-kuakata">
                 {isBn ? "ম্যানগ্রোভ" : "Mangrove"}
-              </option>
-              <option value="super-combo">
-                {isBn ? "সুপার কম্বো ইনভেস্টমেন্ট" : "Super Combo Investment"}
               </option>
               <option value="the-deck">
                 {isBn ? "দ্য ডেক (কক্সবাজার - আসন্ন প্রকল্প)" : "The Deck (Cox's Bazar - Upcoming)"}
@@ -240,16 +250,16 @@ export function InquiryForm({ initialProject = "kuakata-hotel", initialPackage =
             >
               <option value="">{isBn ? "কোনটিই নয় / সাধারণ জিজ্ঞাসা" : "None / General Inquiry"}</option>
               <option value="platinum">
-                {isBn ? "প্লাটিনাম প্যাকেজ (৩৬,০০,০০০ টাকা)" : "Platinum Package (36,00,000 BDT)"}
+                {isBn ? "প্লাটিনাম প্যাকেজ (১০x ইউনিট)" : "Platinum Package (10x Units)"}
               </option>
               <option value="gold">
-                {isBn ? "গোল্ড প্যাকেজ (১৮,৫০,০০০ টাকা)" : "Gold Package (18,50,000 BDT)"}
+                {isBn ? "গোল্ড প্যাকেজ (৫x ইউনিট)" : "Gold Package (5x Units)"}
               </option>
               <option value="silver">
-                {isBn ? "সিলভার প্যাকেজ (১১,৫০,০০০ টাকা)" : "Silver Package (11,50,000 BDT)"}
+                {isBn ? "সিলভার প্যাকেজ (৩x ইউনিট)" : "Silver Package (3x Units)"}
               </option>
               <option value="bronze">
-                {isBn ? "ব্রোঞ্জ প্যাকেজ (৪,০০,০০০ টাকা)" : "Bronze Package (4,00,000 BDT)"}
+                {isBn ? "ব্রোঞ্জ প্যাকেজ (১x ইউনিট)" : "Bronze Package (1x Unit)"}
               </option>
             </select>
           </div>

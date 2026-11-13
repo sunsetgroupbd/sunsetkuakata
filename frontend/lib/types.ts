@@ -35,18 +35,37 @@ export interface Project {
   gallery: string[];
   order: number;
   status: "active" | "planned" | "upcoming";
+  ownershipTotal?: number;
+  sellableTotal?: number; // ADMIN-ONLY, never in public API
+  totalUnits?: number;
+  totalLandSft?: number;
+  totalBuildSft?: number;
+  landAyutangsho?: number;
 }
+
+export type PackageTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 export interface Package {
   id: string;
+  projectSlug: string;
+  tier: PackageTier;
   slug: string;
   nameEn: string;
   nameBn: string;
+  unitMultiplier: number; // 1 | 3 | 5 | 10
   price: number;
   bookingMoney: number;
-  profitPeriodDays: number;
-  featured: boolean;
-  order: number;
+  landSft?: number;
+  buildSft?: number;
+  areaSft: number; // Total area
+  stayDays?: number; // UI label: Accommodation days
+  stayDaysDfi?: number; // combo only
+  discountPercent?: number;
+  nominatedPeople?: number;
+  insuranceCoverage?: number;
+  ownershipCount?: number; // ADMIN-ONLY
+  featured?: boolean;
+  order?: number;
 }
 
 export interface Testimonial {

@@ -43,7 +43,7 @@ export default function SourceOfIncomePage() {
               <li>• Guest room and suite bookings</li>
               <li>• Rising tourist volume in Kuakata</li>
               <li>• Dining and event hosting revenues</li>
-              <li>• Defined profit period terms (10 to 112 days)</li>
+              <li>• Defined annual accommodation days (10 to 112 days)</li>
             </ul>
           </Card>
 

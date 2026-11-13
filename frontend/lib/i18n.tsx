@@ -37,6 +37,15 @@ export function formatCurrencyBDT(amount: number, locale: Locale): string {
   return `BDT ${formattedEn}`;
 }
 
+export function formatLakhBDT(amount: number, locale: Locale): string {
+  const lakh = amount / 100000;
+  const formattedLakh = Number.isInteger(lakh) ? lakh.toString() : lakh.toFixed(2).replace(/\.?0+$/, "");
+  if (locale === "bn") {
+    return `৳ ${toBengaliNumber(formattedLakh)} লাখ`;
+  }
+  return `৳ ${formattedLakh} Lakh`;
+}
+
 const LanguageContext = createContext<LanguageContextType>({
   locale: "bn",
   setLocale: () => {},

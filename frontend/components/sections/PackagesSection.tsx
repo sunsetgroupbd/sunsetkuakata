@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Package } from "@/lib/types";
-import { useLanguage, toBengaliNumber } from "@/lib/i18n";
-import { Crown } from "lucide-react";
+import { useLanguage, formatLakhBDT, toBengaliNumber } from "@/lib/i18n";
+import { Crown, Sparkles, Home, Building2, ShieldCheck, Users, Percent, Gift } from "lucide-react";
 
 interface PackagesSectionProps {
   packages: Package[];
@@ -12,9 +12,20 @@ interface PackagesSectionProps {
 
 export function PackagesSection({ packages }: PackagesSectionProps) {
   const { locale, formatNumber } = useLanguage();
+  const isBn = locale === "bn";
+
+  // Project Filter Tabs
+  const projectTabs = [
+    { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
+    { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
+    { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
+    { slug: "dfi", nameEn: "DFI Fantasy Island", nameBn: "ডিএফআই ফ্যান্টাসি আইল্যান্ড" },
+  ];
+
+  const [activeProject, setActiveProject] = useState<string>("super-combo");
 
   const tierStyles: {
-    [slug: string]: {
+    [key: string]: {
       headerBg: string;
       accentBorder: string;
       buttonHover: string;
@@ -52,29 +63,66 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
     },
   };
 
-  const formatTaka = (amount: number) => {
-    const enFormatted = amount.toLocaleString("en-IN");
-    if (locale === "bn") {
-      return `৳ ${toBengaliNumber(enFormatted)}`;
+  const projectPackages = packages.filter((p) => p.projectSlug === activeProject);
+  const displayPackages = projectPackages.length > 0 ? projectPackages : packages.slice(0, 4);
+
+  // Helper for Land + Build detail string
+  const renderAreaDetail = (pkg: Package) => {
+    if (pkg.landSft !== undefined && pkg.buildSft !== undefined) {
+      if (isBn) {
+        return `জমি ${toBengaliNumber(pkg.landSft)} sft + নির্মাণ ${toBengaliNumber(pkg.buildSft)} sft = মোট ${toBengaliNumber(pkg.areaSft)} sft`;
+      }
+      return `Land ${pkg.landSft} sft + Build ${pkg.buildSft} sft = Total ${pkg.areaSft} sft`;
     }
-    return `৳ ${enFormatted}`;
+    if (isBn) {
+      return `মোট এরিয়া: ${toBengaliNumber(pkg.areaSft)} sft`;
+    }
+    return `Total Area: ${pkg.areaSft} sft`;
   };
 
   return (
     <section className="bg-ash py-16 sm:py-24 border-b border-ink/10">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header matching Image 1 */}
-        <div className="text-center max-w-xl mx-auto mb-14 space-y-3">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <span className={`text-xs uppercase font-semibold text-green-900 block ${isBn ? "tracking-normal" : "tracking-[0.2em]"}`}>
+            {isBn ? "সম্পদ অংশীদারিত্বের স্তর" : "Ownership Packages"}
+          </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-ink font-semibold">
-            {locale === "bn" ? "মালিকানা প্যাকেজসমূহ" : "Ownership Packages"}
+            {isBn ? "মালিকানা প্যাকেজসমূহ" : "Ownership Packages"}
           </h2>
+          <p className="text-xs sm:text-sm text-grey-700">
+            {isBn
+              ? "প্রকল্প নির্বাচন করে প্রতিটি স্তরের ইউনিট সাইজ, জমি ও নির্মাণ অনুপাত এবং আবাসন সুবিধা দেখুন।"
+              : "Select a project to explore unit tiers, land + construction ratios, and accommodation benefits."}
+          </p>
         </div>
 
-        {/* 4 Cards Grid - 2 per row on mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {packages.map((pkg) => {
-            const tier = tierStyles[pkg.slug] || {
+        {/* Project Selector Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          {projectTabs.map((tab) => (
+            <button
+              key={tab.slug}
+              onClick={() => setActiveProject(tab.slug)}
+              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs ${
+                activeProject === tab.slug
+                  ? "bg-green-900 text-white shadow-sm border border-green-900"
+                  : "bg-white text-ink border border-ink/15 hover:border-green-900/40 hover:bg-white"
+              }`}
+            >
+              {isBn ? tab.nameBn : tab.nameEn}
+            </button>
+          ))}
+        </div>
+
+        {/* 4 Cards Grid - 2 per row on mobile, 4 on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {displayPackages.map((pkg) => {
+            const tierKey = pkg.tier.toLowerCase();
+            const tier = tierStyles[tierKey] || {
               headerBg: "bg-green-900",
+              accentBorder: "hover:border-green-900",
+              buttonHover: "hover:bg-green-900 hover:text-white",
               titleEn: pkg.nameEn,
               titleBn: pkg.nameBn,
             };
@@ -82,57 +130,123 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
             return (
               <div
                 key={pkg.id}
-                className={`border border-ink/10 bg-white rounded-xl sm:rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 ${tier.accentBorder} shadow-xs hover:shadow-md`}
+                className={`border border-ink/10 bg-white rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 ${tier.accentBorder} shadow-xs hover:shadow-md relative`}
               >
                 <div>
-                  {/* Colored Header Banner with Crown Icon */}
+                  {/* Colored Metallic Header Banner with Crown Icon */}
                   <div
-                    className={`${tier.headerBg} text-white py-2.5 sm:py-4 px-2 sm:px-4 flex items-center justify-center gap-1.5 sm:gap-2 text-center rounded-t-xl sm:rounded-t-2xl shadow-xs`}
+                    className={`${tier.headerBg} text-white py-3.5 sm:py-4 px-4 flex items-center justify-between text-center rounded-t-2xl shadow-xs`}
                   >
-                    <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/95" />
-                    <span className="font-serif text-xs sm:text-base md:text-lg font-medium tracking-wide">
-                      {locale === "bn" ? tier.titleBn : tier.titleEn}
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-white/95 flex-shrink-0" />
+                      <span className="font-serif text-base sm:text-lg font-semibold tracking-wide">
+                        {isBn ? tier.titleBn : tier.titleEn}
+                      </span>
+                    </div>
+                    <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-white/20 text-white backdrop-blur-xs">
+                      {pkg.unitMultiplier}x {isBn ? "ইউনিট" : "Unit"}
                     </span>
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-3 sm:p-6 text-center space-y-3 sm:space-y-5">
-                    {/* Price */}
-                    <div className="space-y-0.5 sm:space-y-1">
-                      <div className="font-serif text-base sm:text-2xl md:text-3xl text-ink font-bold tabular-nums">
-                        {formatTaka(pkg.price)}
+                  <div className="p-4 sm:p-6 space-y-4">
+                    {/* Price in Lakh format */}
+                    <div className="text-center space-y-1 pb-3 border-b border-ink/10">
+                      <span className="text-[10px] sm:text-xs text-grey-700 uppercase tracking-wider block">
+                        {isBn ? "প্যাকেজ মূল্য" : "Total Package Price"}
+                      </span>
+                      <div className="font-serif text-xl sm:text-2xl font-bold text-ink">
+                        {formatLakhBDT(pkg.price, locale)}
+                      </div>
+                      <div className="text-[11px] text-grey-700 font-medium">
+                        (৳ {pkg.price.toLocaleString("en-IN")})
                       </div>
                     </div>
 
-                    {/* Booking Money */}
-                    <div className="space-y-0.5 pt-1.5 sm:pt-2 border-t border-ink/10">
-                      <span className="text-[10px] sm:text-[11px] text-grey-700 block">
-                        {locale === "bn" ? "বুকিং" : "Booking"}
+                    {/* Booking Money in Lakh format */}
+                    <div className="flex justify-between items-baseline text-xs pt-1">
+                      <span className="text-grey-700 font-medium">
+                        {isBn ? "বুকিং মানি:" : "Booking Money:"}
                       </span>
-                      <div className="font-serif text-xs sm:text-base md:text-lg text-ink font-semibold tabular-nums">
-                        {formatTaka(pkg.bookingMoney)}
+                      <div className="text-right">
+                        <span className="font-semibold text-green-900 font-serif text-sm sm:text-base">
+                          {formatLakhBDT(pkg.bookingMoney, locale)}
+                        </span>
+                        <span className="text-[10px] text-grey-700 block">
+                          (৳ {pkg.bookingMoney.toLocaleString("en-IN")})
+                        </span>
                       </div>
                     </div>
 
-                    {/* Profit Period */}
-                    <div className="space-y-0.5 pt-1.5 sm:pt-2 border-t border-ink/10">
-                      <span className="text-[10px] sm:text-[11px] text-grey-700 block">
-                        {locale === "bn" ? "মুনাফা সময়কাল" : "Profit Period"}
+                    {/* Land & Construction / Area Detail ("Land X sft + Build Y sft = Total Z sft") */}
+                    <div className="space-y-1 pt-2 border-t border-ink/10 text-xs">
+                      <span className="text-grey-700 block font-medium">
+                        {isBn ? "জমি ও নির্মাণ অনুপাত:" : "Space Allocation:"}
                       </span>
-                      <div className="font-serif text-xs sm:text-base md:text-lg text-ink font-semibold tabular-nums">
-                        {formatNumber(pkg.profitPeriodDays)} {locale === "bn" ? "দিন" : "Days"}
+                      <div className="font-serif text-[11px] sm:text-xs text-ink font-semibold bg-sand/80 p-2 rounded-lg leading-snug">
+                        {renderAreaDetail(pkg)}
                       </div>
                     </div>
+
+                    {/* Accommodation days (UI label: "Accommodation days") */}
+                    {(pkg.stayDays || pkg.stayDaysDfi) && (
+                      <div className="flex justify-between items-center text-xs pt-2 border-t border-ink/10">
+                        <span className="text-grey-700 font-medium">
+                          {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
+                        </span>
+                        <span className="font-semibold text-ink font-serif text-xs sm:text-sm">
+                          {pkg.stayDaysDfi
+                            ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(pkg.stayDays || 0)}d + DFI ${formatNumber(pkg.stayDaysDfi)}d`
+                            : `${formatNumber(pkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Discount Percent if applicable */}
+                    {pkg.discountPercent && (
+                      <div className="flex justify-between items-center text-xs pt-1 border-t border-ink/5">
+                        <span className="text-grey-700 font-medium">
+                          {isBn ? "রিসোর্ট ডিসকাউন্ট:" : "Resort Discount:"}
+                        </span>
+                        <span className="font-semibold text-green-900 font-serif">
+                          {formatNumber(pkg.discountPercent)}%
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Nominated People if applicable */}
+                    {pkg.nominatedPeople && (
+                      <div className="flex justify-between items-center text-xs pt-1 border-t border-ink/5">
+                        <span className="text-grey-700 font-medium">
+                          {isBn ? "মনোনীত ব্যক্তি:" : "Nominated People:"}
+                        </span>
+                        <span className="font-semibold text-ink font-serif">
+                          {formatNumber(pkg.nominatedPeople)} {isBn ? "জন" : "Persons"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Insurance Coverage if applicable */}
+                    {pkg.insuranceCoverage && (
+                      <div className="flex justify-between items-center text-xs pt-1 border-t border-ink/5">
+                        <span className="text-grey-700 font-medium">
+                          {isBn ? "জীবন বীমা কভারেজ:" : "Insurance Coverage:"}
+                        </span>
+                        <span className="font-semibold text-green-900 font-serif">
+                          {formatLakhBDT(pkg.insuranceCoverage, locale)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Card Action Link */}
-                <div className="p-3 sm:p-5 pt-0">
+                <div className="p-4 sm:p-6 pt-0">
                   <Link
-                    href={`/contact?package=${pkg.slug}`}
-                    className={`block w-full py-2 sm:py-3 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-lg border border-ink/20 text-ink ${tier.buttonHover} transition-colors duration-200`}
+                    href={`/contact?package=${pkg.slug}&project=${pkg.projectSlug}`}
+                    className={`block w-full py-2.5 sm:py-3 text-center text-xs font-semibold uppercase tracking-wider rounded-xl border border-ink/20 text-ink ${tier.buttonHover} transition-colors duration-200 shadow-2xs`}
                   >
-                    {locale === "bn" ? "আবেদন করুন" : "Apply for Booking"}
+                    {isBn ? "বুকিং আবেদন করুন" : "Apply for Booking"}
                   </Link>
                 </div>
               </div>

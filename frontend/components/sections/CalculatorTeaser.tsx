@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Package } from "@/lib/types";
-import { useLanguage, formatCurrencyBDT } from "@/lib/i18n";
+import { useLanguage, formatCurrencyBDT, formatLakhBDT } from "@/lib/i18n";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Calculator, ArrowRight } from "lucide-react";
@@ -33,13 +33,13 @@ export function CalculatorTeaser({ packages }: CalculatorTeaserProps) {
               <h2 className="font-serif text-3xl sm:text-4xl text-ink leading-tight font-semibold">
                 {locale === "bn"
                   ? "প্যাকেজ ভিত্তিক মূল্য ও বুকিং হিসাব জানুন"
-                  : "Calculate Package Breakdown and Profit Period"}
+                  : "Calculate Package Breakdown and Accommodation Days"}
               </h2>
 
               <p className="text-sm sm:text-base text-grey-700 leading-relaxed">
                 {locale === "bn"
-                  ? "প্রতিটি প্যাকেজের নির্ধারিত মূল্য, বুকিং মানি এবং মুনাফা বণ্টন সময়কাল স্বচ্ছভাবে দেখুন। কোনো অনুমানমূলক বা অলীক মুনাফার প্রতিশ্রুতি নয়—বাস্তব ব্যবসায়িক কাঠামো।"
-                  : "Explore transparent pricing, booking requirements, and defined profit periods across ownership tiers. Illustrative projections are available on request."}
+                  ? "প্রতিটি প্যাকেজের নির্ধারিত মূল্য, বুকিং মানি এবং আবাসন সুবিধা স্বচ্ছভাবে দেখুন। কোনো অনুমানমূলক প্রতিশ্রুতি নয়—বাস্তব ব্যবসায়িক ও আইনি কাঠামো।"
+                  : "Explore transparent pricing, booking requirements, space allocations, and accommodation days across ownership tiers."}
               </p>
 
               <div className="pt-2">
@@ -58,7 +58,7 @@ export function CalculatorTeaser({ packages }: CalculatorTeaserProps) {
                     {locale === "bn" ? "প্যাকেজ নির্বাচন করুন:" : "Select Ownership Package:"}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {packages.map((pkg) => (
+                    {packages.slice(0, 4).map((pkg) => (
                       <button
                         key={pkg.id}
                         onClick={() => setSelectedSlug(pkg.slug)}
@@ -80,26 +80,38 @@ export function CalculatorTeaser({ packages }: CalculatorTeaserProps) {
                       <span className="text-xs text-grey-700">
                         {locale === "bn" ? "মোট মূল্য:" : "Total Price:"}
                       </span>
-                      <span className="font-serif text-2xl text-ink font-medium tabular-nums">
-                        {formatCurrencyBDT(currentPkg.price, locale)}
-                      </span>
+                      <div className="text-right">
+                        <span className="font-serif text-2xl text-ink font-bold tabular-nums">
+                          {formatLakhBDT(currentPkg.price, locale)}
+                        </span>
+                        <span className="text-[10px] text-grey-700 block">
+                          (৳ {currentPkg.price.toLocaleString("en-IN")})
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-grey-700">
                         {locale === "bn" ? "বুকিং মানি:" : "Booking Money:"}
                       </span>
-                      <span className="font-serif text-lg text-green-900 font-medium tabular-nums">
-                        {formatCurrencyBDT(currentPkg.bookingMoney, locale)}
-                      </span>
+                      <div className="text-right">
+                        <span className="font-serif text-lg text-green-900 font-semibold tabular-nums">
+                          {formatLakhBDT(currentPkg.bookingMoney, locale)}
+                        </span>
+                        <span className="text-[10px] text-grey-700 block">
+                          (৳ {currentPkg.bookingMoney.toLocaleString("en-IN")})
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-grey-700">
-                        {locale === "bn" ? "মুনাফার সময়কাল:" : "Profit Period:"}
+                        {locale === "bn" ? "আবাসন সুবিধা:" : "Accommodation days:"}
                       </span>
                       <span className="text-xs font-semibold text-ink tabular-nums">
-                        {formatNumber(currentPkg.profitPeriodDays)} {locale === "bn" ? "দিন" : "days"}
+                        {currentPkg.stayDaysDfi
+                          ? `${locale === "bn" ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(currentPkg.stayDays || 0)}d + DFI ${formatNumber(currentPkg.stayDaysDfi)}d`
+                          : `${formatNumber(currentPkg.stayDays || 0)} ${locale === "bn" ? "দিন" : "days"}`}
                       </span>
                     </div>
                   </div>

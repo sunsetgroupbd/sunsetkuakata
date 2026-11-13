@@ -5,7 +5,7 @@ import { ProfitCalculatorClient } from "@/components/calculator/ProfitCalculator
 export const metadata: Metadata = {
   title: "Profit Calculator | Sunset Group",
   description:
-    "Calculate package pricing, booking money, remaining balance, and profit period for Sunset Kuakata Hotel & Resort ownership packages.",
+    "Calculate package pricing, booking money, remaining balance, and accommodation days for Sunset Kuakata Hotel & Resort ownership packages.",
 };
 
 interface ProfitCalculatorPageProps {
@@ -32,7 +32,7 @@ export default async function ProfitCalculatorPage({
             Profit & Ownership Calculator
           </h1>
           <p className="text-base text-grey-700 leading-relaxed">
-            Select a hotel ownership package to review total price, initial booking money, remaining balance, and profit period.
+            Select an ownership package to review total price, initial booking money, remaining balance, and accommodation days.
           </p>
         </div>
 

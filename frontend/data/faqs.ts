@@ -41,8 +41,8 @@ export const seedFaqs: FAQ[] = [
     id: "faq-6",
     questionEn: "What hotel ownership packages are available?",
     questionBn: "হোটেল মালিকানায় কী কী প্যাকেজ রয়েছে?",
-    answerEn: "There are four packages: Platinum (BDT 36,00,000; Booking 8,00,000; Profit period 112 days), Gold (BDT 18,50,000; Booking 5,00,000; Profit period 56 days), Silver (BDT 11,50,000; Booking 3,00,000; Profit period 33 days), and Bronze (BDT 4,00,000; Booking 1,00,000; Profit period 10 days).",
-    answerBn: "চারটি নির্ধারিত প্যাকেজ রয়েছে: প্লাটিনাম (মূল্য ৩৬,০০,০০০ ৳; বুকিং ৮,০০,০০০ ৳; মুনাফার সময়কাল ১১২ দিন), গোল্ড (মূল্য ১৮,৫০,০০০ ৳; বুকিং ৫,০০,০০০ ৳; মুনাফার সময়কাল ৫৬ দিন), সিলভার (মূল্য ১১,৫০,০০০ ৳; বুকিং ৩,০০,০০০ ৳; মুনাফার সময়কাল ৩৩ দিন) এবং ব্রোঞ্জ (মূল্য ৪,০০,০০০ ৳; বুকিং ১,০০,০০০ ৳; মুনাফার সময়কাল ১০ দিন)।",
+    answerEn: "There are four distinct ownership tiers across our projects: Platinum, Gold, Silver, and Bronze, offering statutory Saf-Kabala deed registration, proportional land & build space allocations, and defined accommodation days across Sunset Kuakata, Sun Care Hospital, DFI, and Super Combo.",
+    answerBn: "আমাদের প্রকল্পসমূহে চারটি নির্ধারিত মালিকানা স্তর রয়েছে: প্লাটিনাম, গোল্ড, সিলভার এবং ব্রোঞ্জ। প্রতিটি প্যাকেজে রয়েছে বিধিবদ্ধ সাফ-কবালা দলিলের মালিকানা, নির্দিষ্ট জমি ও নির্মাণ স্পেস বরাদ্দ এবং কুয়াকাটা, সান কেয়ার হসপিটাল, ডিএফআই ও সুপার কম্বো প্রকল্পে বার্ষিক আবাসন সুবিধা।",
   },
 ];
 

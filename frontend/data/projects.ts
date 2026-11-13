@@ -40,7 +40,12 @@ export const seedProjects: Project[] = [
       "/images/1.webp"
     ],
     order: 1,
-    status: "active"
+    status: "active",
+    ownershipTotal: 2800,
+    sellableTotal: 1400,
+    totalUnits: 13000,
+    totalLandSft: 104000,
+    totalBuildSft: 260000,
   },
   {
     id: "p-2",
@@ -89,7 +94,11 @@ export const seedProjects: Project[] = [
       "/images/hero2.webp"
     ],
     order: 2,
-    status: "active"
+    status: "active",
+    ownershipTotal: 1700,
+    sellableTotal: 850,
+    totalUnits: 10000,
+    landAyutangsho: 660,
   },
   {
     id: "p-3",
@@ -126,7 +135,10 @@ export const seedProjects: Project[] = [
       "/images/hero1.webp"
     ],
     order: 3,
-    status: "active"
+    status: "active",
+    ownershipTotal: 1700,
+    sellableTotal: 850,
+    totalUnits: 10000,
   },
   {
     id: "p-4",
@@ -189,7 +201,10 @@ export const seedProjects: Project[] = [
       "/images/hero1.webp"
     ],
     order: 5,
-    status: "active"
+    status: "active",
+    ownershipTotal: 2800,
+    sellableTotal: 1400,
+    totalUnits: 13000,
   },
   {
     id: "p-6",

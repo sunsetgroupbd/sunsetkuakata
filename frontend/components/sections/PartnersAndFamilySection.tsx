@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n";
 import { partnerLogos, mouSigningPhotos, familyOwnerPhotos, PartnerPhoto } from "@/data/partners";
-import { X, ZoomIn } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export function PartnersAndFamilySection() {
   const { locale } = useLanguage();
-  const [selectedPhoto, setSelectedPhoto] = useState<PartnerPhoto | null>(null);
 
   // Section A: 8 photos (3 in top line, 2 in middle line around circle, 3 in bottom line)
   const mouTop = mouSigningPhotos.slice(0, 3);      // 3 images
@@ -26,8 +23,7 @@ export function PartnersAndFamilySection() {
   const renderPhotoCard = (photo: PartnerPhoto) => (
     <div
       key={photo.id}
-      onClick={() => setSelectedPhoto(photo)}
-      className="group relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden border border-ink/10 bg-white cursor-pointer shadow-xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
+      className="group relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden border border-ink/10 bg-white shadow-xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
     >
       <Image
         src={photo.src}
@@ -36,11 +32,6 @@ export function PartnersAndFamilySection() {
         sizes="(max-width: 640px) 50vw, 33vw"
         className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-        <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 text-green-900 flex items-center justify-center shadow-md">
-          <ZoomIn className="w-4 h-4 sm:w-5 sm:h-5" />
-        </span>
-      </div>
     </div>
   );
 
@@ -205,47 +196,6 @@ export function PartnersAndFamilySection() {
         </div>
 
       </div>
-
-      {/* Lightbox / Modal for High-Resolution Photo Viewing */}
-      <AnimatePresence>
-        {selectedPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <div
-              className="relative max-w-4xl w-full bg-white rounded-xl overflow-hidden border border-white/20"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="absolute top-4 right-4 z-10 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors cursor-pointer"
-                aria-label="Close Preview"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="relative aspect-[16/10] w-full bg-black">
-                <Image
-                  src={selectedPhoto.src}
-                  alt={selectedPhoto.alt}
-                  fill
-                  sizes="100vw"
-                  className="object-contain"
-                />
-              </div>
-              <div className="p-4 sm:p-6 bg-white">
-                <p className="font-serif text-base sm:text-lg font-semibold text-ink">
-                  {locale === "bn" ? selectedPhoto.captionBn : selectedPhoto.captionEn}
-                </p>
-                <p className="text-xs text-grey-700 mt-1">{selectedPhoto.alt}</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
