@@ -7,6 +7,7 @@ import {
 
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ProjectsShowcase } from "@/components/sections/ProjectsShowcase";
+import { VideoShowcaseSection } from "@/components/sections/VideoShowcaseSection";
 import { PackagesSection } from "@/components/sections/PackagesSection";
 import { PartnersAndFamilySection } from "@/components/sections/PartnersAndFamilySection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
@@ -40,7 +41,10 @@ export default async function HomePage() {
       {/* 5. Ownership Packages (Platinum, Gold, Silver, Bronze) */}
       <PackagesSection packages={packages} />
 
-      {/* 6. Interactive Calculator Teaser */}
+      {/* 6. Video Tour & Documentaries */}
+      <VideoShowcaseSection />
+
+      {/* 7. Interactive Calculator Teaser */}
       <CalculatorTeaser packages={packages} />
 
       {/* 7. FAQ Section */}

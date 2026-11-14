@@ -86,6 +86,16 @@ export interface GalleryItem {
   category: "hotel" | "location" | "site" | "events";
 }
 
+export interface VideoItem {
+  id: string;
+  youtubeId: string;
+  titleEn: string;
+  titleBn: string;
+  descriptionEn?: string;
+  descriptionBn?: string;
+  featured?: boolean;
+}
+
 export interface BlogPost {
   id: string;
   slug: string;

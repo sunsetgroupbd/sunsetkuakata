@@ -23,13 +23,13 @@ export function PartnersAndFamilySection() {
   const renderPhotoCard = (photo: PartnerPhoto) => (
     <div
       key={photo.id}
-      className="group relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden border border-ink/10 bg-white shadow-xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
+      className="group relative aspect-[4/3] rounded-sm sm:rounded-lg overflow-hidden border border-ink/10 bg-white shadow-2xs sm:shadow-sm hover:border-green-900/50 hover:shadow-md transition-all duration-300"
     >
       <Image
         src={photo.src}
         alt={photo.alt}
         fill
-        sizes="(max-width: 640px) 50vw, 33vw"
+        sizes="(max-width: 640px) 33vw, 33vw"
         className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
     </div>
@@ -55,18 +55,18 @@ export function PartnersAndFamilySection() {
             </p>
           </div>
 
-          {/* 3x3 Grid: Row 1 (3 images), Row 2 (1 img, Circle, 1 img), Row 3 (3 images) - 2 per row on mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 items-center">
+          {/* 3x3 Grid: Row 1 (3 images), Row 2 (1 img, Circle, 1 img), Row 3 (3 images) - identical 3x3 layout on mobile and PC */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-4 md:gap-6 items-center">
             {/* Row 1: 3 images in top line */}
             {mouTop.map(renderPhotoCard)}
 
             {/* Row 2: Left Image */}
             {mouMidLeft && renderPhotoCard(mouMidLeft)}
 
-            {/* Row 2: Center Circle Shape (spans 2 cols on mobile, 1 on desktop) */}
-            <div className="col-span-2 md:col-span-1 flex items-center justify-center py-2 md:py-0">
-              <div className="w-full aspect-square max-w-[240px] sm:max-w-[280px] md:max-w-[320px] rounded-full border-2 border-green-900 bg-white p-5 sm:p-8 flex flex-col items-center justify-center text-center shadow-md">
-                <p className="font-serif text-xs sm:text-base md:text-lg font-bold text-green-900 leading-snug">
+            {/* Row 2: Center Circle Shape (in the exact center of 3x3) */}
+            <div className="col-span-1 flex items-center justify-center">
+              <div className="w-full aspect-square max-w-[320px] rounded-full border border-green-900 sm:border-2 bg-white p-1.5 xs:p-2.5 sm:p-5 md:p-8 flex flex-col items-center justify-center text-center shadow-xs sm:shadow-md">
+                <p className="font-serif text-[7px] xs:text-[9.5px] sm:text-base md:text-lg font-bold text-green-900 leading-tight sm:leading-snug">
                   {locale === "bn"
                     ? "সম্মানিত অংশীদারদের সাথে সমঝোতা স্মারক স্বাক্ষর করতে পেরে আমরা আনন্দিত ও গর্বিত।"
                     : "We are Honoured to sign a Memorandum of Understanding with Our Esteemed Partners."}
@@ -93,21 +93,21 @@ export function PartnersAndFamilySection() {
             </h2>
           </div>
 
-          {/* 3x3 Grid: Row 1 (3 images), Row 2 (1 img, Circle, 1 img), Row 3 (3 images) - 2 per row on mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 items-center">
+          {/* 3x3 Grid: Row 1 (3 images), Row 2 (1 img, Circle, 1 img), Row 3 (3 images) - identical 3x3 layout on mobile and PC */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-4 md:gap-6 items-center">
             {/* Row 1: 3 images in top line */}
             {familyTop.map(renderPhotoCard)}
 
             {/* Row 2: Left Image */}
             {familyMidLeft && renderPhotoCard(familyMidLeft)}
 
-            {/* Row 2: Center Circle Shape (spans 2 cols on mobile, 1 on desktop) */}
-            <div className="col-span-2 md:col-span-1 flex items-center justify-center py-2 md:py-0">
-              <div className="w-full aspect-square max-w-[240px] sm:max-w-[280px] md:max-w-[320px] rounded-full border-2 border-green-900 bg-white p-5 sm:p-8 flex flex-col items-center justify-center text-center shadow-md space-y-2">
-                <h3 className="font-serif text-sm sm:text-lg md:text-xl font-bold text-green-900 leading-tight">
+            {/* Row 2: Center Circle Shape (in the exact center of 3x3) */}
+            <div className="col-span-1 flex items-center justify-center">
+              <div className="w-full aspect-square max-w-[320px] rounded-full border border-green-900 sm:border-2 bg-white p-1.5 xs:p-2 sm:p-5 md:p-8 flex flex-col items-center justify-center text-center shadow-xs sm:shadow-md space-y-0.5 sm:space-y-2">
+                <h3 className="font-serif text-[7.5px] xs:text-[10px] sm:text-lg md:text-xl font-bold text-green-900 leading-tight">
                   {locale === "bn" ? "তারা আমাদের পরিবারের অংশ।" : "They are part of our family."}
                 </h3>
-                <p className="text-[11px] sm:text-sm text-grey-700 leading-relaxed font-medium">
+                <p className="text-[6px] xs:text-[8px] sm:text-sm text-grey-700 leading-tight sm:leading-relaxed font-medium line-clamp-3">
                   {locale === "bn"
                     ? "সানসেট কুয়াকাটা হোটেল & রিসোর্ট লি. ইতোমধ্যে সফলভাবে সাফ-কবালা রেজিস্ট্রেশন সম্পন্ন করেছে।"
                     : "Sunset Kuakata Hotel & Resort Ltd. has already completed the Saf Kabla registration."}

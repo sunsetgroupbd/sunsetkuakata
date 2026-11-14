@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { YouTubeEmbed } from "@/components/ui/YouTubeEmbed";
 import { Hotel, Stethoscope, Compass, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -84,6 +85,32 @@ export default function SourceOfIncomePage() {
               <li>• Permanent wealth generation avenue</li>
             </ul>
           </Card>
+        </div>
+
+        {/* Official Video Presentation: Tourism Investment & Governance */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-ink/10 bg-white p-6 sm:p-10 rounded-2xl shadow-xs">
+          <div className="lg:col-span-7">
+            <YouTubeEmbed
+              videoId="6PWf8ejVec8"
+              title="Tourism Investment in Sunset Hotel & Resort Kuakata"
+            />
+          </div>
+          <div className="lg:col-span-5 space-y-4">
+            <span className="inline-block text-[11px] uppercase tracking-wider font-semibold text-green-900 bg-green-900/10 px-2.5 py-1 rounded-md">
+              Official Video Documentary
+            </span>
+            <h3 className="font-serif text-2xl text-ink font-semibold">
+              Authentic Hospitality & Real Asset Returns
+            </h3>
+            <p className="text-xs sm:text-sm text-grey-700 leading-relaxed">
+              Watch our official video documentary illustrating the tourism growth in Kuakata, statutory deed registration, and ethical profit-sharing principles governing our hotels and diagnostic centers.
+            </p>
+            <div className="pt-2">
+              <Button href="/gallery" variant="outline" className="text-xs">
+                Watch All Video Features
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Shariah Supervision Notice */}

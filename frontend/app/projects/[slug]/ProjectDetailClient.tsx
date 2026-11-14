@@ -7,6 +7,7 @@ import { Project } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { YouTubeEmbed } from "@/components/ui/YouTubeEmbed";
 import { MapPin, Check, ArrowLeft, Shield } from "lucide-react";
 
 interface ProjectDetailClientProps {
@@ -192,6 +193,20 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
                 </ul>
               </div>
             )}
+
+            {/* Project Video Presentation */}
+            <div className="pt-6 border-t border-ink/10">
+              <YouTubeEmbed
+                videoId={
+                  project.slug === "kuakata-hotel"
+                    ? "6PWf8ejVec8"
+                    : project.slug === "super-combo"
+                    ? "y6mck3HSYIw"
+                    : "BhpGrudqDOs"
+                }
+                title={title}
+              />
+            </div>
           </div>
 
           {/* Sidebar CTA Card */}
