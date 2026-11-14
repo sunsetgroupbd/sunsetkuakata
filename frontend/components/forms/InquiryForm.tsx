@@ -34,7 +34,7 @@ interface InquiryFormProps {
   initialPackage?: string;
 }
 
-export function InquiryForm({ initialProject = "super-combo", initialPackage = "" }: InquiryFormProps) {
+export function InquiryForm({ initialProject = "sun-care", initialPackage = "" }: InquiryFormProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
 
@@ -211,17 +211,17 @@ export function InquiryForm({ initialProject = "super-combo", initialPackage = "
               {...register("projectSlug")}
               className="w-full border border-ink/20 px-3 py-2.5 bg-paper text-ink text-sm rounded-xl focus:border-green-900 focus:outline-none disabled:opacity-60 cursor-pointer"
             >
-              <option value="super-combo">
-                {isBn ? "সুপার কম্বো ইনভেস্টমেন্ট (৪-ইন-১)" : "Super Combo Investment (4-in-1)"}
-              </option>
-              <option value="kuakata-hotel">
-                {isBn ? "সানসেট কুয়াকাটা হোটেল অ্যান্ড রিসোর্ট" : "Sunset Kuakata Hotel & Resort"}
-              </option>
               <option value="sun-care">
                 {isBn ? "সান কেয়ার হসপিটাল অ্যান্ড ডায়াগনস্টিক" : "Sun Care Hospital & Diagnostic"}
               </option>
               <option value="dfi">
-                {isBn ? "ডিএফআই (ঢাকা ফ্যান্টাসি আইল্যান্ড)" : "DFI (Dhaka Fantasy Island)"}
+                {isBn ? "ঢাকা ফ্যান্টাসি আইল্যান্ড (ডিএফআই)" : "Dhaka Fantasy Island (DFI)"}
+              </option>
+              <option value="kuakata-hotel">
+                {isBn ? "সানসেট কুয়াকাটা হোটেল অ্যান্ড রিসোর্ট" : "Sunset Kuakata Hotel & Resort"}
+              </option>
+              <option value="super-combo">
+                {isBn ? "সুপার কম্বো ইনভেস্টমেন্ট (৪-ইন-১)" : "Super Combo Investment (4-in-1)"}
               </option>
               <option value="mangrove-kuakata">
                 {isBn ? "ম্যানগ্রোভ" : "Mangrove"}

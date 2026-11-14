@@ -43,7 +43,7 @@ export function ContactClient({
           {/* Inquiry Form (7 cols) */}
           <div className="lg:col-span-7">
             <InquiryForm
-              initialProject={initialProject || "super-combo"}
+              initialProject={initialProject || "sun-care"}
               initialPackage={initialPackage || ""}
             />
           </div>

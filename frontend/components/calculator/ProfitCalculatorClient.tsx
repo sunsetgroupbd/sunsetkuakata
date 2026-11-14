@@ -17,7 +17,6 @@ import {
   Users,
   Percent,
   PhoneCall,
-  Sparkles,
 } from "lucide-react";
 import { BdtIcon } from "@/components/svg/BdtIcon";
 
@@ -37,15 +36,15 @@ export function ProfitCalculatorClient({
 
   const [mode, setMode] = useState<"package" | "custom">("package");
 
-  // Project Filter Tabs
+  // Project Filter Tabs (Order: 1. Sun Care, 2. Dhaka Fantasy Island (DFI), 3. Sunset Kuakata, 4. Super Combo)
   const projectTabs = [
-    { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
-    { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
     { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
-    { slug: "dfi", nameEn: "DFI Fantasy Island", nameBn: "ডিএফআই ফ্যান্টাসি আইল্যান্ড" },
+    { slug: "dfi", nameEn: "Dhaka Fantasy Island (DFI)", nameBn: "ঢাকা ফ্যান্টাসি আইল্যান্ড (ডিএফআই)" },
+    { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
+    { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
   ];
 
-  const [selectedProject, setSelectedProject] = useState<string>("super-combo");
+  const [selectedProject, setSelectedProject] = useState<string>("sun-care");
 
   // Filter packages for selected project
   const availablePackages = packages.filter((p) => p.projectSlug === selectedProject);
@@ -274,82 +273,121 @@ export function ProfitCalculatorClient({
           </div>
         </div>
 
-        {/* Financial Breakdown & Summary Box */}
-        <div className="border border-green-900/20 bg-green-900/5 p-5 sm:p-8 space-y-5 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between border-b border-green-900/15 pb-3">
-            <h3 className="font-serif text-base sm:text-lg text-ink font-bold">
+        {/* Financial Breakdown & Summary Box (Mobile App-Optimized UI) */}
+        <div className="border border-green-900/20 bg-green-900/5 p-3.5 sm:p-8 space-y-3.5 sm:space-y-5 rounded-xl sm:rounded-2xl shadow-xs">
+          
+          {/* Header (Clean title without icon) */}
+          <div className="flex items-center justify-between border-b border-green-900/15 pb-2.5 sm:pb-3">
+            <h3 className="font-serif text-sm sm:text-lg text-ink font-bold">
               {isBn ? "হিসাব ও অর্থ পরিশোধ বিবরণী" : "Financial Breakdown & Allocation"}
             </h3>
-            <span className="text-xs font-semibold text-green-900 bg-white px-2.5 py-1 rounded-full border border-green-900/20 shadow-2xs">
+            <span className="text-[10px] sm:text-xs font-semibold text-green-900 bg-white px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-green-900/20 shadow-2xs whitespace-nowrap">
               {mode === "package" ? `${selectedPkg.unitMultiplier}x Unit Share` : "Custom Share"}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-            {/* Total Price */}
-            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
-              <span className="text-[11px] text-grey-700 uppercase tracking-wider block">
-                {isBn ? "মোট প্যাকেজ মূল্য" : "Total Package Price"}
-              </span>
-              <div className="font-serif text-xl sm:text-2xl font-bold text-ink tabular-nums">
+          {/* App-like Hero Monthly Installment Card (Solid Clean White, No Gradient) */}
+          {estimatedMonthly && installmentMonths > 0 ? (
+            <div className="rounded-xl sm:rounded-2xl bg-white p-3.5 sm:p-5 shadow-xs border-2 border-green-900/40">
+              <div className="flex items-center justify-between gap-2 pb-1.5 sm:pb-2 border-b border-ink/10">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-green-900" />
+                  <span className="text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-green-900">
+                    {isBn ? "সম্ভাব্য মাসিক কিস্তি" : "Estimated Monthly Installment"}
+                  </span>
+                </div>
+                <span className="bg-green-900/10 px-2 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold text-green-900 border border-green-900/20 whitespace-nowrap">
+                  {isBn ? `${toBengaliNumber(installmentMonths)} মাসের শিডিউল` : `${installmentMonths} Mo Schedule`}
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
+                <div>
+                  <div className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold text-green-900 tracking-tight tabular-nums flex items-baseline gap-1">
+                    <span>৳ {estimatedMonthly.toLocaleString("en-IN")}</span>
+                    <span className="text-xs sm:text-sm font-normal text-grey-700">
+                      /{isBn ? "মাস" : "mo"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-grey-700 mt-0.5 sm:mt-1">
+                    {isBn
+                      ? `বুকিং মানি বাদে অবশিষ্ট ব্যালেন্সের ${toBengaliNumber(installmentMonths)}টি সমান মাসিক কিস্তি (বিনা সুদে)`
+                      : `Payable across ${installmentMonths} equal monthly installments`}
+                  </p>
+                </div>
+
+                {/* Mobile Quick Action Link */}
+                <Link
+                  href={
+                    mode === "package"
+                      ? `/contact?package=${selectedPkg.slug}&project=${selectedPkg.projectSlug}`
+                      : `/contact?project=${selectedProject}`
+                  }
+                  className="inline-flex sm:hidden items-center justify-center gap-1.5 py-2 px-3 bg-green-900 hover:bg-green-800 text-white text-[11px] font-bold rounded-lg uppercase tracking-wider transition-all mt-1 shadow-xs"
+                >
+                  <span>{isBn ? "এই কিস্তিতে বুকিং আবেদন" : "Book This Plan"}</span>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ) : installmentMonths === 0 ? (
+            <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-green-900/30 flex items-center justify-between gap-3 shadow-2xs">
+              <div className="space-y-0.5">
+                <span className="text-xs uppercase tracking-wider font-semibold text-green-900 block">
+                  {isBn ? "এককালীন পরিশোধ পরিকল্পনা" : "Full Payment Option"}
+                </span>
+                <p className="text-[11px] text-grey-700">
+                  {isBn ? "রেজিস্ট্রেশনের সময় সম্পূর্ণ মূল্য পরিশোধযোগ্য" : "100% full payment at the time of deed registration"}
+                </p>
+              </div>
+              <div className="font-serif text-lg sm:text-2xl font-bold text-ink tabular-nums">
                 {formatLakhBDT(currentPrice, locale)}
               </div>
-              <div className="text-[10px] text-grey-700">
+            </div>
+          ) : null}
+
+          {/* 3 Compact App-Style Metrics (All 3 side-by-side in 1 row on mobile & desktop) */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-1">
+            {/* Total Price */}
+            <div className="bg-white p-2.5 sm:p-4 rounded-xl border border-ink/10 space-y-0.5 sm:space-y-1 text-center sm:text-left shadow-2xs">
+              <span className="text-[9px] sm:text-[11px] text-grey-700 uppercase tracking-wider block font-medium">
+                {isBn ? "মোট মূল্য" : "Total Price"}
+              </span>
+              <div className="font-serif text-xs sm:text-2xl font-bold text-ink tabular-nums leading-tight">
+                {formatLakhBDT(currentPrice, locale)}
+              </div>
+              <div className="text-[8.5px] sm:text-[10px] text-grey-700 truncate">
                 (৳ {currentPrice.toLocaleString("en-IN")})
               </div>
             </div>
 
             {/* Booking Money */}
-            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
-              <span className="text-[11px] text-grey-700 uppercase tracking-wider flex items-center gap-1">
-                <Bookmark className="w-3 h-3 text-green-900" />
-                {isBn ? "প্রারম্ভিক বুকিং মানি" : "Initial Booking"}
+            <div className="bg-white p-2.5 sm:p-4 rounded-xl border border-green-900/30 ring-1 ring-green-900/10 space-y-0.5 sm:space-y-1 text-center sm:text-left shadow-2xs">
+              <span className="text-[9px] sm:text-[11px] text-green-900 uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1 font-semibold">
+                <Bookmark className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-900 flex-shrink-0" />
+                <span>{isBn ? "বুকিং মানি" : "Initial Booking"}</span>
               </span>
-              <div className="font-serif text-xl sm:text-2xl font-bold text-green-900 tabular-nums">
+              <div className="font-serif text-xs sm:text-2xl font-bold text-green-900 tabular-nums leading-tight">
                 {formatLakhBDT(currentBooking, locale)}
               </div>
-              <div className="text-[10px] text-grey-700">
+              <div className="text-[8.5px] sm:text-[10px] text-green-900/80 truncate">
                 (৳ {currentBooking.toLocaleString("en-IN")})
               </div>
             </div>
 
             {/* Remaining Balance */}
-            <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-1">
-              <span className="text-[11px] text-grey-700 uppercase tracking-wider block">
-                {isBn ? "অবশিষ্ট পরিশোধযোগ্য" : "Remaining Balance"}
+            <div className="bg-white p-2.5 sm:p-4 rounded-xl border border-ink/10 space-y-0.5 sm:space-y-1 text-center sm:text-left shadow-2xs">
+              <span className="text-[9px] sm:text-[11px] text-grey-700 uppercase tracking-wider block font-medium">
+                {isBn ? "অবশিষ্ট ব্যালেন্স" : "Remaining"}
               </span>
-              <div className="font-serif text-xl sm:text-2xl font-bold text-ink tabular-nums">
+              <div className="font-serif text-xs sm:text-2xl font-bold text-ink tabular-nums leading-tight">
                 {formatLakhBDT(currentRemaining, locale)}
               </div>
-              <div className="text-[10px] text-grey-700">
+              <div className="text-[8.5px] sm:text-[10px] text-grey-700 truncate">
                 (৳ {currentRemaining.toLocaleString("en-IN")})
               </div>
             </div>
           </div>
-
-          {/* Monthly Installment Highlight (If installment selected) */}
-          {estimatedMonthly && installmentMonths > 0 && (
-            <div className="bg-white p-4 sm:p-5 rounded-xl border-2 border-green-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-              <div>
-                <span className="text-xs uppercase tracking-wider font-semibold text-green-900 block">
-                  {isBn ? "সম্ভাব্য মাসিক কিস্তি:" : "Estimated Monthly Installment:"}
-                </span>
-                <p className="text-xs text-grey-700">
-                  {isBn
-                    ? `${installmentMonths} মাসে পরিশোধযোগ্য সমান কিস্তি (বিনা সুদে)`
-                    : `Payable across ${installmentMonths} equal monthly installments`}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="font-serif text-2xl sm:text-3xl font-extrabold text-green-900 tabular-nums">
-                  ৳ {estimatedMonthly.toLocaleString("en-IN")}
-                  <span className="text-xs font-normal text-grey-700 ml-1">
-                    /{isBn ? "মাস" : "mo"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Space & Accommodation Details */}
           {mode === "package" && (
