@@ -1,7 +1,15 @@
+"use client";
+
 import React from "react";
+import { usePathname } from "next/navigation";
 import { WhatsAppIcon } from "@/components/svg/WhatsAppIcon";
 
 export function FloatingWhatsApp({ phone = "8801325074535" }: { phone?: string }) {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const cleanPhone = phone.replace(/[^0-9]/g, "");
   return (
     <a

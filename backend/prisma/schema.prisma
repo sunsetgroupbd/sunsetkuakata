@@ -1,0 +1,57 @@
+// Prisma Schema for Sunset Kuakata Backend
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Admin Authentication & RBAC
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN") // SUPER_ADMIN, ADMIN, MODERATOR
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 2. Investor Leads & Inquiries CRM
+model Inquiry {
+  id          String   @id @default(uuid())
+  fullName    String
+  phone       String
+  email       String?
+  projectSlug String
+  packageSlug String?
+  message     String?
+  status      String   @default("NEW") // NEW, CONTACTED, FOLLOW_UP, CONVERTED, CLOSED
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 3. Ownership Packages & Pricing
+model Package {
+  id                String   @id
+  projectSlug       String
+  tier              String   // BRONZE, SILVER, GOLD, PLATINUM
+  slug              String
+  nameEn            String
+  nameBn            String
+  unitMultiplier    Int      // 1, 3, 5, 10
+  price             Int      // Exact BDT
+  bookingMoney      Int      // Exact BDT
+  areaSft           Float    // Total Sft
+  stayDays          Int?     // Accommodation Days
+  stayDaysDfi       Int?     // Combo Accommodation Days
+  discountPercent   Int?
+  nominatedPeople   Int?
+  insuranceCoverage Int?
+  order             Int      @default(0)
+  updatedAt         DateTime @updatedAt
+}

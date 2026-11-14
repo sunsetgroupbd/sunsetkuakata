@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { WhatsAppIcon } from "@/components/svg/WhatsAppIcon";
 import { FacebookIcon, InstagramIcon, YouTubeIcon, LinkedInIcon } from "@/components/svg/SocialIcons";
@@ -15,6 +16,12 @@ interface FooterProps {
 
 export function Footer({ settings }: FooterProps) {
   const { locale } = useLanguage();
+  const pathname = usePathname();
+
+  // Hide the public brochure website footer on the internal Admin Portal
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="bg-white text-ink border-t border-ink/10 mt-auto">

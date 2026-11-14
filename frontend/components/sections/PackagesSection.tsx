@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Package } from "@/lib/types";
+import { seedPackages } from "@/data/packages";
 import { useLanguage, formatLakhBDT, toBengaliNumber } from "@/lib/i18n";
 import { Crown, Sparkles, Home, Building2, ShieldCheck, Users, Percent, Gift } from "lucide-react";
 
@@ -63,8 +64,14 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
     },
   };
 
-  const projectPackages = packages.filter((p) => p.projectSlug === activeProject);
-  const displayPackages = projectPackages.length > 0 ? projectPackages : packages.slice(0, 4);
+  // Resilient fallback: ensure verified brochure packages are always displayed even if backend data is empty
+  const allPackages = packages && packages.length > 0 ? packages : seedPackages;
+  const projectPackages = allPackages.filter((p) => p.projectSlug === activeProject);
+  const fallbackProjectPackages = seedPackages.filter((p) => p.projectSlug === activeProject);
+  const displayPackages =
+    projectPackages.length > 0
+      ? projectPackages
+      : (fallbackProjectPackages.length > 0 ? fallbackProjectPackages : seedPackages.slice(0, 4));
 
   // Helper for Land + Build detail string
   const renderAreaDetail = (pkg: Package) => {

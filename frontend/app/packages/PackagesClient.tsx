@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Package } from "@/lib/types";
+import { seedPackages } from "@/data/packages";
 import { useLanguage } from "@/lib/i18n";
 import { PackagesSection } from "@/components/sections/PackagesSection";
 import { CalculatorTeaser } from "@/components/sections/CalculatorTeaser";
@@ -33,8 +34,8 @@ export function PackagesClient({ packages }: PackagesClientProps) {
         </div>
       </div>
 
-      <PackagesSection packages={packages} />
-      <CalculatorTeaser packages={packages} />
+      <PackagesSection packages={packages && packages.length > 0 ? packages : seedPackages} />
+      <CalculatorTeaser packages={packages && packages.length > 0 ? packages : seedPackages} />
       <FinalCta />
     </div>
   );

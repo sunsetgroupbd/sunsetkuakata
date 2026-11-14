@@ -26,6 +26,11 @@ export function Header() {
   const { locale, toggleLocale } = useLanguage();
   const pathname = usePathname();
 
+  // Hide the public brochure website header on the internal Admin Portal
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);

@@ -37,7 +37,14 @@ async function fetchFromApi<T>(endpoint: string, fallbackData: T): Promise<T> {
     }
 
     const json: ApiResponse<T> = await res.json();
-    return json.data ?? fallbackData;
+    if (json.data === null || json.data === undefined) {
+      return fallbackData;
+    }
+    // If expected data is a list and backend returned an empty array, fall back to seed content
+    if (Array.isArray(fallbackData) && Array.isArray(json.data) && json.data.length === 0) {
+      return fallbackData;
+    }
+    return json.data;
   } catch {
     if (process.env.NODE_ENV !== "production") {
       console.warn(`[API Fallback] Could not reach ${url}. Using local verified seed data.`);

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Package, CalculatorConfig } from "@/lib/types";
+import { seedPackages } from "@/data/packages";
 import { useLanguage, formatCurrencyBDT, formatLakhBDT, toBengaliNumber } from "@/lib/i18n";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -46,9 +47,14 @@ export function ProfitCalculatorClient({
 
   const [selectedProject, setSelectedProject] = useState<string>("sun-care");
 
-  // Filter packages for selected project
-  const availablePackages = packages.filter((p) => p.projectSlug === selectedProject);
-  const currentProjectPackages = availablePackages.length > 0 ? availablePackages : packages.slice(0, 4);
+  // Resilient fallback: ensure packages are always available
+  const allPackages = packages && packages.length > 0 ? packages : seedPackages;
+  const availablePackages = allPackages.filter((p) => p.projectSlug === selectedProject);
+  const fallbackForProject = seedPackages.filter((p) => p.projectSlug === selectedProject);
+  const currentProjectPackages =
+    availablePackages.length > 0
+      ? availablePackages
+      : (fallbackForProject.length > 0 ? fallbackForProject : seedPackages.slice(0, 4));
 
   // Selected package tier
   const [selectedTier, setSelectedTier] = useState<string>("bronze");
@@ -59,10 +65,11 @@ export function ProfitCalculatorClient({
   // Custom mode amount
   const [customAmount, setCustomAmount] = useState<number>(1000000);
 
-  // Match selected package
+  // Match selected package with fallback
   const selectedPkg =
     currentProjectPackages.find((p) => p.tier.toLowerCase() === selectedTier.toLowerCase()) ||
-    currentProjectPackages[0];
+    currentProjectPackages[0] ||
+    seedPackages[0];
 
   // Calculated values
   const currentPrice = mode === "package" ? selectedPkg.price : customAmount;

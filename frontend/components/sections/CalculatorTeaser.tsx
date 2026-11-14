@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Package } from "@/lib/types";
+import { seedPackages } from "@/data/packages";
 import { useLanguage, formatCurrencyBDT, formatLakhBDT } from "@/lib/i18n";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -14,9 +15,10 @@ interface CalculatorTeaserProps {
 
 export function CalculatorTeaser({ packages }: CalculatorTeaserProps) {
   const { locale, t, formatNumber } = useLanguage();
-  const [selectedSlug, setSelectedSlug] = useState<string>(packages[0]?.slug || "platinum");
+  const safePackages = packages && packages.length > 0 ? packages : seedPackages;
+  const [selectedSlug, setSelectedSlug] = useState<string>(safePackages[0]?.slug || "bronze");
 
-  const currentPkg = packages.find((p) => p.slug === selectedSlug) || packages[0];
+  const currentPkg = safePackages.find((p) => p.slug === selectedSlug) || safePackages[0] || seedPackages[0];
 
   return (
     <section className="bg-white py-16 sm:py-24 border-b border-ink/10">
