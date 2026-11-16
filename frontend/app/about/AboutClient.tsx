@@ -12,6 +12,7 @@ interface Leader {
   roleEn: string;
   roleBn: string;
   image: string;
+  imageClass?: string;
 }
 
 const leaders: Leader[] = [
@@ -40,16 +41,17 @@ const leaders: Leader[] = [
     image: "/images/Nahid.webp",
   },
   {
-    name: "Protiva Shaon",
-    roleEn: "Director",
-    roleBn: "পরিচালক",
-    image: "/images/Protiva.webp",
+    name: "Munsi Hasibur Rahman",
+    roleEn: "Head of Admin",
+    roleBn: "হেড অব অ্যাডমিন",
+    image: "/images/hasib.webp",
+    imageClass: "-translate-y-2 scale-110",
   },
   {
-    name: "Shahinu Akter (Joya)",
-    roleEn: "Director",
-    roleBn: "পরিচালক",
-    image: "/images/Shahinu.webp",
+    name: "Gazi Mahfuz Kashem",
+    roleEn: "Head of Business Development",
+    roleBn: "হেড অব বিজনেস ডেভেলপমেন্ট",
+    image: "/images/gazi.webp",
   },
 ];
 
@@ -249,7 +251,11 @@ export function AboutClient() {
                     alt={leader.name}
                     fill
                     sizes="(max-width: 640px) 80px, 112px"
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    className={`object-cover object-top transition-transform duration-500 ${
+                      leader.imageClass
+                        ? `${leader.imageClass} group-hover:scale-115`
+                        : "group-hover:scale-105"
+                    }`}
                   />
                 </div>
                 <div className="space-y-1 w-full">
