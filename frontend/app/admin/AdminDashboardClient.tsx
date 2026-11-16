@@ -138,7 +138,7 @@ export function AdminDashboardClient() {
   // Backend Connectivity Status
   const [isBackendConnected, setIsBackendConnected] = useState(false);
 
-  // Load token and initial admin list from storage on mount
+  // Load token, check API health & load initial admin list on mount
   useEffect(() => {
     const savedToken = localStorage.getItem("sunset_admin_token");
     const savedUser = localStorage.getItem("sunset_admin_user");
@@ -151,6 +151,21 @@ export function AdminDashboardClient() {
       }
     }
     loadLocalAdmins();
+
+    // Check live API connectivity immediately
+    const checkApiStatus = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/packages`, { method: "GET" });
+        if (res.ok) {
+          setIsBackendConnected(true);
+        } else {
+          setIsBackendConnected(false);
+        }
+      } catch {
+        setIsBackendConnected(false);
+      }
+    };
+    checkApiStatus();
   }, []);
 
   // Check backend health & load data on authentication
@@ -853,12 +868,14 @@ export function AdminDashboardClient() {
           </div>
 
           {/* Connection Mode Indicator */}
-          <div className="flex items-center justify-between text-[11px] text-grey-500 bg-ash/50 px-3 py-2 rounded-xl border border-ink/5">
-            <span className="flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-grey-500 bg-ash/50 px-3 py-2 rounded-xl border border-ink/5">
+            <span className="flex items-center gap-1.5 flex-shrink-0">
               <span className={`w-2 h-2 rounded-full ${isBackendConnected ? "bg-emerald-500" : "bg-amber-400"}`} />
-              <span className="font-medium">{isBackendConnected ? "API Connected" : "Local / Offline Sync"}</span>
+              <span className="font-semibold text-ink">
+                {isBackendConnected ? "API Connected (Live)" : "Local / Offline Sync"}
+              </span>
             </span>
-            <span className="font-mono text-[10px] text-grey-400 truncate max-w-[170px]" title={API_BASE_URL}>
+            <span className="font-mono text-[10px] text-grey-600 sm:text-right" title={API_BASE_URL}>
               {API_BASE_URL.replace(/^https?:\/\//, "")}
             </span>
           </div>
