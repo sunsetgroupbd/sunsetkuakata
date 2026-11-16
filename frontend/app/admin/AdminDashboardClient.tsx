@@ -69,6 +69,8 @@ interface AdminUser {
   email: string;
   name: string;
   role: string;
+  createdAt?: string;
+  password?: string;
 }
 
 export function AdminDashboardClient() {
@@ -104,8 +106,15 @@ export function AdminDashboardClient() {
   const [createAdminError, setCreateAdminError] = useState<string | null>(null);
   const [createAdminSuccess, setCreateAdminSuccess] = useState<string | null>(null);
 
-  // Navigation Tab State ("leads" | "packages")
-  const [activeTab, setActiveTab] = useState<"leads" | "packages">("leads");
+  // Navigation Tab State ("leads" | "packages" | "admins")
+  const [activeTab, setActiveTab] = useState<"leads" | "packages" | "admins">("leads");
+
+  // Admin Users List State
+  const [adminUsersList, setAdminUsersList] = useState<AdminUser[]>([]);
+  const [isLoadingAdmins, setIsLoadingAdmins] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState<AdminUser | null>(null);
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
+  const [adminRoleFilter, setAdminRoleFilter] = useState("all");
 
   // CRM Leads State
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -129,7 +138,7 @@ export function AdminDashboardClient() {
   // Backend Connectivity Status
   const [isBackendConnected, setIsBackendConnected] = useState(false);
 
-  // Load token from storage on mount
+  // Load token and initial admin list from storage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem("sunset_admin_token");
     const savedUser = localStorage.getItem("sunset_admin_user");
@@ -141,13 +150,15 @@ export function AdminDashboardClient() {
         setAdminUser({ name: "Sunset Admin", email: "admin@sunsetkuakata.com", role: "SUPER_ADMIN" });
       }
     }
+    loadLocalAdmins();
   }, []);
 
-  // Check backend health & load initial data
+  // Check backend health & load data on authentication
   useEffect(() => {
     if (token) {
       fetchLeads();
       fetchPackages();
+      fetchAdmins();
     }
   }, [token]);
 
@@ -157,11 +168,13 @@ export function AdminDashboardClient() {
     setLoginError("");
     setIsLoggingIn(true);
 
+    const normalizedEmail = loginEmail.toLowerCase().trim();
+
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        body: JSON.stringify({ email: normalizedEmail, password: loginPassword }),
       });
 
       if (res.ok) {
@@ -173,33 +186,66 @@ export function AdminDashboardClient() {
         localStorage.setItem("sunset_admin_token", jwtToken);
         localStorage.setItem("sunset_admin_user", JSON.stringify(user));
         setIsBackendConnected(true);
-      } else {
-        // Fallback demo credentials if backend offline during preview
-        if (loginEmail === "admin@sunsetkuakata.com" && loginPassword === "Admin@12345") {
-          const demoToken = "demo-admin-session-token";
-          const demoUser = { name: "Sunset Executive Admin", email: loginEmail, role: "SUPER_ADMIN" };
-          setToken(demoToken);
-          setAdminUser(demoUser);
-          localStorage.setItem("sunset_admin_token", demoToken);
-          localStorage.setItem("sunset_admin_user", JSON.stringify(demoUser));
-          setIsBackendConnected(false);
-        } else {
-          setLoginError("Invalid email or password. Please verify your credentials.");
-        }
+        return;
       }
+
+      // If backend explicitly rejected the credentials:
+      if (res.status === 401 || res.status === 400) {
+        const errJson = await res.json().catch(() => ({}));
+        setLoginError(errJson.message || "Invalid email or password. Please verify your credentials.");
+        return;
+      }
+
+      throw new Error("HTTP error " + res.status);
     } catch {
-      // Offline fallback
-      if (loginEmail === "admin@sunsetkuakata.com" && loginPassword === "Admin@12345") {
+      // Offline / Local Demo Fallback Mode
+      // 1. Check default super admin credentials
+      if (normalizedEmail === "admin@sunsetkuakata.com" && loginPassword === "Admin@12345") {
         const demoToken = "demo-admin-session-token";
-        const demoUser = { name: "Sunset Executive Admin", email: loginEmail, role: "SUPER_ADMIN" };
+        const demoUser = {
+          id: "super-admin-default",
+          name: "Sunset Executive Admin",
+          email: normalizedEmail,
+          role: "SUPER_ADMIN",
+        };
         setToken(demoToken);
         setAdminUser(demoUser);
         localStorage.setItem("sunset_admin_token", demoToken);
         localStorage.setItem("sunset_admin_user", JSON.stringify(demoUser));
         setIsBackendConnected(false);
-      } else {
-        setLoginError("Failed to connect to authentication server. Please check your credentials.");
+        return;
       }
+
+      // 2. Check local created admins list
+      try {
+        const localAdmins: (AdminUser & { password?: string })[] = JSON.parse(
+          localStorage.getItem("sunset_local_admins") || "[]"
+        );
+        const match = localAdmins.find(
+          (a) => a.email.toLowerCase().trim() === normalizedEmail && a.password === loginPassword
+        );
+        if (match) {
+          const demoToken = "demo-admin-" + (match.id || Date.now());
+          const demoUser = {
+            id: match.id,
+            name: match.name,
+            email: match.email,
+            role: match.role,
+          };
+          setToken(demoToken);
+          setAdminUser(demoUser);
+          localStorage.setItem("sunset_admin_token", demoToken);
+          localStorage.setItem("sunset_admin_user", JSON.stringify(demoUser));
+          setIsBackendConnected(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not check local admins storage:", err);
+      }
+
+      setLoginError(
+        "Invalid email or password. If using newly created credentials, ensure you entered the exact email and password."
+      );
     } finally {
       setIsLoggingIn(false);
     }
@@ -210,6 +256,79 @@ export function AdminDashboardClient() {
     setAdminUser(null);
     localStorage.removeItem("sunset_admin_token");
     localStorage.removeItem("sunset_admin_user");
+  };
+
+  // Helper to persist admins in localStorage (for offline and fast UI sync)
+  const saveAdminLocally = (newAdmin: AdminUser & { password?: string }) => {
+    try {
+      const existing: (AdminUser & { password?: string })[] = JSON.parse(
+        localStorage.getItem("sunset_local_admins") || "[]"
+      );
+      const filtered = existing.filter(
+        (a) => a.email.toLowerCase().trim() !== newAdmin.email.toLowerCase().trim()
+      );
+      const updated = [newAdmin, ...filtered];
+      localStorage.setItem("sunset_local_admins", JSON.stringify(updated));
+
+      // Update current displayed list
+      setAdminUsersList((prev) => {
+        const withoutNew = prev.filter(
+          (a) => a.email.toLowerCase().trim() !== newAdmin.email.toLowerCase().trim()
+        );
+        return [newAdmin, ...withoutNew];
+      });
+    } catch (e) {
+      console.warn("Could not save admin locally:", e);
+    }
+  };
+
+  // Load local admins
+  const loadLocalAdmins = () => {
+    const defaultSuperAdmin: AdminUser = {
+      id: "super-admin-default",
+      name: "Sunset Executive Admin",
+      email: "admin@sunsetkuakata.com",
+      role: "SUPER_ADMIN",
+      createdAt: "2026-11-14T00:00:00.000Z",
+    };
+
+    try {
+      const localAdmins: AdminUser[] = JSON.parse(
+        localStorage.getItem("sunset_local_admins") || "[]"
+      );
+      const combined = [
+        defaultSuperAdmin,
+        ...localAdmins.filter(
+          (a) => a.email.toLowerCase().trim() !== defaultSuperAdmin.email.toLowerCase().trim()
+        ),
+      ];
+      setAdminUsersList(combined);
+    } catch {
+      setAdminUsersList([defaultSuperAdmin]);
+    }
+  };
+
+  // Fetch Admins from API
+  const fetchAdmins = async () => {
+    setIsLoadingAdmins(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/admins`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+          setAdminUsersList(json.data);
+          setIsBackendConnected(true);
+          return;
+        }
+      }
+      loadLocalAdmins();
+    } catch {
+      loadLocalAdmins();
+    } finally {
+      setIsLoadingAdmins(false);
+    }
   };
 
   // Handle Change Password
@@ -269,7 +388,9 @@ export function AdminDashboardClient() {
       return;
     }
 
+    const normalizedEmail = createEmail.toLowerCase().trim();
     setCreateAdminLoading(true);
+
     try {
       const res = await fetch(`${API_BASE_URL}/auth/create-admin`, {
         method: "POST",
@@ -278,8 +399,8 @@ export function AdminDashboardClient() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: createName,
-          email: createEmail,
+          name: createName.trim(),
+          email: normalizedEmail,
           password: createPassword,
           role: createRole,
         }),
@@ -288,21 +409,87 @@ export function AdminDashboardClient() {
       const json = await res.json().catch(() => ({}));
       if (res.ok) {
         setCreateAdminSuccess(`Admin account for "${createEmail}" created successfully!`);
+        saveAdminLocally({
+          id: json.data?.id || "admin-" + Date.now(),
+          name: createName.trim(),
+          email: normalizedEmail,
+          role: createRole,
+          password: createPassword,
+          createdAt: json.data?.createdAt || new Date().toISOString(),
+        });
         setCreateName("");
         setCreateEmail("");
         setCreatePassword("");
+        fetchAdmins();
+        return;
       } else {
+        if (res.status === 401 || !isBackendConnected) {
+          throw new Error("Offline demo session");
+        }
         setCreateAdminError(json.message || "Failed to create admin user.");
       }
     } catch {
-      // Offline fallback
-      setCreateAdminSuccess(`Admin account for "${createEmail}" created (Local Session Mode).`);
+      // Offline / Local Session Mode
+      saveAdminLocally({
+        id: "local-admin-" + Date.now(),
+        name: createName.trim(),
+        email: normalizedEmail,
+        role: createRole,
+        password: createPassword,
+        createdAt: new Date().toISOString(),
+      });
+      setCreateAdminSuccess(
+        `Admin account for "${createEmail}" created successfully! You can now log in with these credentials.`
+      );
       setCreateName("");
       setCreateEmail("");
       setCreatePassword("");
     } finally {
       setCreateAdminLoading(false);
     }
+  };
+
+  // Delete Admin Action
+  const handleConfirmDeleteAdmin = async () => {
+    if (!adminToDelete) return;
+    const adminId = adminToDelete.id;
+    const adminEmail = adminToDelete.email;
+
+    // Remove from UI state
+    const updated = adminUsersList.filter(
+      (a) => a.id !== adminId && a.email.toLowerCase() !== adminEmail.toLowerCase()
+    );
+    setAdminUsersList(updated);
+
+    // Remove from local storage
+    try {
+      const local: AdminUser[] = JSON.parse(localStorage.getItem("sunset_local_admins") || "[]");
+      const filtered = local.filter(
+        (a) => a.id !== adminId && a.email.toLowerCase() !== adminEmail.toLowerCase()
+      );
+      localStorage.setItem("sunset_local_admins", JSON.stringify(filtered));
+    } catch {
+      // continue
+    }
+
+    // Call backend if online
+    if (
+      isBackendConnected &&
+      adminId &&
+      !adminId.startsWith("local-") &&
+      !adminId.startsWith("super-admin-default")
+    ) {
+      try {
+        await fetch(`${API_BASE_URL}/auth/admins/${adminId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (err) {
+        console.warn("Backend delete admin failed:", err);
+      }
+    }
+
+    setAdminToDelete(null);
   };
 
   // Fetch Leads
@@ -582,6 +769,19 @@ export function AdminDashboardClient() {
     return { total, newCount, contacted, converted };
   }, [leads]);
 
+  // Filtered Admins
+  const filteredAdmins = useMemo(() => {
+    return adminUsersList.filter((admin) => {
+      const matchRole = adminRoleFilter === "all" || admin.role === adminRoleFilter;
+      const query = adminSearchQuery.toLowerCase().trim();
+      const matchQuery =
+        !query ||
+        admin.name.toLowerCase().includes(query) ||
+        admin.email.toLowerCase().includes(query);
+      return matchRole && matchQuery;
+    });
+  }, [adminUsersList, adminRoleFilter, adminSearchQuery]);
+
   // Project Display Name Helper
   const getProjectName = (slug: string) => {
     switch (slug) {
@@ -650,6 +850,17 @@ export function AdminDashboardClient() {
                 Sunset Kuakata Hotel & Resort Ltd. — Management Portal
               </p>
             </div>
+          </div>
+
+          {/* Connection Mode Indicator */}
+          <div className="flex items-center justify-between text-[11px] text-grey-500 bg-ash/50 px-3 py-2 rounded-xl border border-ink/5">
+            <span className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isBackendConnected ? "bg-emerald-500" : "bg-amber-400"}`} />
+              <span className="font-medium">{isBackendConnected ? "API Connected" : "Local / Offline Sync"}</span>
+            </span>
+            <span className="font-mono text-[10px] text-grey-400 truncate max-w-[170px]" title={API_BASE_URL}>
+              {API_BASE_URL.replace(/^https?:\/\//, "")}
+            </span>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -884,6 +1095,20 @@ export function AdminDashboardClient() {
             <span>Package Pricing Manager</span>
             <span className="bg-ink/5 text-grey-700 text-xs px-2 py-0.5 rounded-full">
               {packagesList.length || 16}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("admins")}
+            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${activeTab === "admins"
+              ? "border-green-900 text-green-900 font-bold"
+              : "border-transparent text-grey-700 hover:text-ink"
+              }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-green-900" />
+            <span>Admin Users</span>
+            <span className="bg-sand text-ink text-xs px-2 py-0.5 rounded-full font-bold">
+              {adminUsersList.length || 1}
             </span>
           </button>
         </div>
@@ -1521,6 +1746,310 @@ export function AdminDashboardClient() {
           </div>
         )}
 
+        {/* TAB 3: ADMIN USERS MANAGEMENT */}
+        {activeTab === "admins" && (
+          <div className="space-y-6">
+            {/* Header & Quick Actions */}
+            <div className="bg-white p-4 sm:p-6 rounded-2xl border border-ink/10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-green-900/10 text-green-900 flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">
+                      Admin Accounts & Security Roles
+                    </h2>
+                    <p className="text-xs text-grey-600 mt-0.5">
+                      Manage executive staff credentials, access levels, and role privileges
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={fetchAdmins}
+                  className="px-3.5 py-2 border border-ink/20 hover:bg-ash text-grey-700 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                  title="Refresh admin list"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAdmins ? "animate-spin" : ""}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsCreateAdminOpen(true);
+                    setCreateAdminError(null);
+                    setCreateAdminSuccess(null);
+                  }}
+                  className="px-4 py-2 bg-green-900 hover:bg-green-800 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>+ Add New Admin</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Metrics Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+              <div className="bg-white p-4 rounded-2xl border border-ink/10 shadow-xs space-y-1">
+                <span className="text-[11px] uppercase tracking-wider font-semibold text-grey-600">
+                  Total Admins
+                </span>
+                <div className="font-serif text-2xl font-bold text-ink">
+                  {adminUsersList.length}
+                </div>
+                <p className="text-[10px] text-grey-500">Authorized accounts</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-xs space-y-1">
+                <span className="text-[11px] uppercase tracking-wider font-semibold text-amber-800 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Super Admins</span>
+                </span>
+                <div className="font-serif text-2xl font-bold text-amber-900">
+                  {adminUsersList.filter((a) => a.role === "SUPER_ADMIN").length}
+                </div>
+                <p className="text-[10px] text-amber-700">Full system access</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-ink/10 shadow-xs space-y-1">
+                <span className="text-[11px] uppercase tracking-wider font-semibold text-green-900 flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-green-900" />
+                  <span>Standard Admins</span>
+                </span>
+                <div className="font-serif text-2xl font-bold text-ink">
+                  {adminUsersList.filter((a) => a.role === "ADMIN").length}
+                </div>
+                <p className="text-[10px] text-grey-500">CRM & Pricing managers</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-ink/10 shadow-xs space-y-1">
+                <span className="text-[11px] uppercase tracking-wider font-semibold text-grey-600 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-grey-600" />
+                  <span>Moderators</span>
+                </span>
+                <div className="font-serif text-2xl font-bold text-ink">
+                  {adminUsersList.filter((a) => a.role === "MODERATOR").length}
+                </div>
+                <p className="text-[10px] text-grey-500">View & notes access</p>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-ink/10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+              <div className="relative w-full md:max-w-md">
+                <Search className="w-4 h-4 text-grey-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  value={adminSearchQuery}
+                  onChange={(e) => setAdminSearchQuery(e.target.value)}
+                  placeholder="Search admin name or email..."
+                  className="w-full pl-9 pr-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs sm:text-sm focus:border-green-900 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={adminRoleFilter}
+                  onChange={(e) => setAdminRoleFilter(e.target.value)}
+                  className="px-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs font-medium focus:border-green-900 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="SUPER_ADMIN">Super Admin Only</option>
+                  <option value="ADMIN">Standard Admin Only</option>
+                  <option value="MODERATOR">Moderator Only</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Admin Users List: Desktop Table & Mobile Cards */}
+            <div className="bg-white rounded-2xl border border-ink/10 shadow-xs overflow-hidden">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead className="bg-ash/70 border-b border-ink/10 text-grey-700 uppercase font-semibold text-[10px] tracking-wider">
+                    <tr>
+                      <th className="py-3 px-4">Admin User</th>
+                      <th className="py-3 px-4">Role & Permissions</th>
+                      <th className="py-3 px-4">Access Level</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Created Date</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-ink/10">
+                    {filteredAdmins.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-grey-500 text-xs">
+                          No admin accounts match your search.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredAdmins.map((admin) => {
+                        const isCurrent = admin.email.toLowerCase().trim() === adminUser?.email?.toLowerCase().trim();
+                        return (
+                          <tr key={admin.id || admin.email} className="hover:bg-sand/15 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-green-900/10 text-green-900 font-bold flex items-center justify-center text-xs flex-shrink-0">
+                                  {admin.name ? admin.name.charAt(0).toUpperCase() : "A"}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-ink flex items-center gap-1.5">
+                                    <span>{admin.name}</span>
+                                    {isCurrent && (
+                                      <span className="text-[10px] font-bold text-green-900 bg-green-900/10 px-1.5 py-0.2 rounded">
+                                        You
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-grey-500 font-mono">{admin.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
+                                  admin.role === "SUPER_ADMIN"
+                                    ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                    : admin.role === "ADMIN"
+                                    ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                    : "bg-blue-100 text-blue-900 border border-blue-300"
+                                }`}
+                              >
+                                {admin.role === "SUPER_ADMIN" && (
+                                  <ShieldCheck className="w-3 h-3 text-amber-700" />
+                                )}
+                                {admin.role === "ADMIN" && (
+                                  <Shield className="w-3 h-3 text-emerald-700" />
+                                )}
+                                {admin.role === "MODERATOR" && (
+                                  <Users className="w-3 h-3 text-blue-700" />
+                                )}
+                                <span>{admin.role.replace("_", " ")}</span>
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-xs text-grey-600">
+                              {admin.role === "SUPER_ADMIN" && "Full System & User Control"}
+                              {admin.role === "ADMIN" && "Full CRM & Pricing Access"}
+                              {admin.role === "MODERATOR" && "Read-Only & Consultation Notes"}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-medium">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span>Active</span>
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-xs text-grey-500">
+                              {admin.createdAt
+                                ? new Date(admin.createdAt).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  })
+                                : "Default"}
+                            </td>
+                            <td className="py-3.5 px-4 text-right">
+                              {isCurrent ? (
+                                <span className="text-[11px] text-grey-400 italic">Current Session</span>
+                              ) : (
+                                <button
+                                  onClick={() => setAdminToDelete(admin)}
+                                  className="p-1.5 text-grey-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Remove admin account"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="block md:hidden divide-y divide-ink/10">
+                {filteredAdmins.length === 0 ? (
+                  <div className="p-6 text-center text-grey-500 text-xs">
+                    No admin accounts match your search.
+                  </div>
+                ) : (
+                  filteredAdmins.map((admin) => {
+                    const isCurrent = admin.email.toLowerCase().trim() === adminUser?.email?.toLowerCase().trim();
+                    return (
+                      <div key={admin.id || admin.email} className="p-4 space-y-3 bg-white">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-full bg-green-900/10 text-green-900 font-bold flex items-center justify-center text-sm flex-shrink-0">
+                              {admin.name ? admin.name.charAt(0).toUpperCase() : "A"}
+                            </div>
+                            <div>
+                              <div className="font-bold text-ink text-sm flex items-center gap-1.5">
+                                <span>{admin.name}</span>
+                                {isCurrent && (
+                                  <span className="text-[10px] font-bold text-green-900 bg-green-900/10 px-1.5 py-0.2 rounded">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-grey-500 font-mono">{admin.email}</div>
+                            </div>
+                          </div>
+
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                              admin.role === "SUPER_ADMIN"
+                                ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                : admin.role === "ADMIN"
+                                ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                : "bg-blue-100 text-blue-900 border border-blue-300"
+                            }`}
+                          >
+                            {admin.role.replace("_", " ")}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-grey-600 bg-ash/50 p-2.5 rounded-xl border border-ink/5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span>Active Account</span>
+                          </div>
+                          <span className="text-grey-500 text-[11px]">
+                            {admin.createdAt
+                              ? new Date(admin.createdAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
+                              : "Default"}
+                          </span>
+                        </div>
+
+                        {!isCurrent && (
+                          <div className="flex justify-end pt-1">
+                            <button
+                              onClick={() => setAdminToDelete(admin)}
+                              className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Remove Admin</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* Internal Sales Notes Modal */}
@@ -1878,6 +2407,46 @@ export function AdminDashboardClient() {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer shadow-xs transition-colors"
               >
                 Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Admin Confirmation Modal */}
+      {adminToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-xl border border-ink/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif text-base font-bold text-ink">
+                  Remove Admin Account
+                </h3>
+                <p className="text-xs text-grey-600">Revoke administrative dashboard privileges</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-grey-700 bg-ash/60 p-3 rounded-xl border border-ink/5">
+              Are you sure you want to remove <strong className="text-ink">{adminToDelete.name}</strong> ({adminToDelete.email})? This user will no longer be able to sign in.
+            </p>
+
+            <div className="flex justify-end gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setAdminToDelete(null)}
+                className="px-4 py-2 border border-ink/20 text-xs font-semibold rounded-xl hover:bg-ash cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteAdmin}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer shadow-xs transition-colors"
+              >
+                Yes, Remove Admin
               </button>
             </div>
           </div>

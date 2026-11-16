@@ -19,9 +19,33 @@ async function bootstrap() {
   );
 
   // CORS configuration
-  const allowedOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+  const rawOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : [];
+
+  const defaultOrigins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://sunsetkuakatahotel.com",
+    "https://www.sunsetkuakatahotel.com",
+  ];
+
+  const allowedOrigins = Array.from(new Set([...defaultOrigins, ...rawOrigins]));
+
   app.enableCors({
-    origin: allowedOrigin === "*" ? true : [allowedOrigin, "http://localhost:3000"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app") ||
+        origin.includes("sunsetkuakatahotel.com") ||
+        process.env.CORS_ORIGIN === "*"
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
   });

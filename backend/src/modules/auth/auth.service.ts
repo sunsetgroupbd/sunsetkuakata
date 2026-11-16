@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  NotFoundException,
   OnModuleInit,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -131,5 +132,34 @@ export class AuthService implements OnModuleInit {
       },
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  async deleteAdmin(adminId: string, currentUserId: string) {
+    if (adminId === currentUserId) {
+      throw new BadRequestException("You cannot delete your own admin account.");
+    }
+
+    const admin = await this.prisma.adminUser.findUnique({
+      where: { id: adminId },
+    });
+
+    if (!admin) {
+      throw new NotFoundException("Admin account not found.");
+    }
+
+    if (admin.role === "SUPER_ADMIN") {
+      const superAdminCount = await this.prisma.adminUser.count({
+        where: { role: "SUPER_ADMIN" },
+      });
+      if (superAdminCount <= 1) {
+        throw new BadRequestException("Cannot delete the only remaining Super Admin account.");
+      }
+    }
+
+    await this.prisma.adminUser.delete({
+      where: { id: adminId },
+    });
+
+    return { message: "Admin account deleted successfully" };
   }
 }

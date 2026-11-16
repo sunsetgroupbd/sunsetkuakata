@@ -243,6 +243,7 @@ Both should return `HTTP/1.1 200 OK` or `HTTP/2 200`.
 | `POST` | `/auth/change-password` | JWT | Update admin password |
 | `POST` | `/auth/create-admin` | JWT | Create new admin user |
 | `GET` | `/auth/admins` | JWT | List all admin accounts |
+| `DELETE` | `/auth/admins/:id` | JWT | Remove an admin account |
 
 ### Investor Inquiries CRM (`/api/v1/inquiries`)
 | Method | Endpoint | Access | Description |

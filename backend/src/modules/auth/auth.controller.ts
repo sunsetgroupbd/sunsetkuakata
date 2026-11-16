@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Request } from "@nestjs/common";
+import { Controller, Post, Get, Delete, Param, Body, UseGuards, Request } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
@@ -52,5 +52,14 @@ export class AuthController {
   async getAdmins() {
     const result = await this.authService.getAdmins();
     return ApiResponse.success(result, "Admin accounts retrieved successfully");
+  }
+
+  @Delete("admins/:id")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Delete an admin account" })
+  async deleteAdmin(@Request() req: any, @Param("id") id: string) {
+    const result = await this.authService.deleteAdmin(id, req.user.id);
+    return ApiResponse.success(result, "Admin account deleted successfully");
   }
 }
