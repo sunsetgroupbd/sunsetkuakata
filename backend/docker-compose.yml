@@ -1,11 +1,10 @@
-version: '3.8'
-
 services:
   backend:
+    image: sunset-hotel-api:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sunset-backend
+    container_name: sunset-hotel-backend
     restart: unless-stopped
     ports:
       - "4000:4000"
