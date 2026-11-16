@@ -1,3 +1,5 @@
+name: sunset-hotel
+
 services:
   backend:
     image: sunset-hotel-api:latest

@@ -89,12 +89,12 @@ CORS_ORIGIN="https://sunsetkuakatahotel.com"
 
 ### Step 4: Run with Docker Compose
 ```bash
-docker compose up --build -d
+docker compose -p sunset-hotel up --build -d
 ```
 Check status:
 ```bash
-docker compose ps
-docker compose logs -f
+docker compose -p sunset-hotel ps
+docker compose -p sunset-hotel logs -f
 ```
 
 ---
@@ -177,10 +177,10 @@ git pull origin main
 
 # 3. Enter backend and rebuild the container
 cd backend
-docker compose up --build -d
+docker compose -p sunset-hotel up --build -d
 
 # 4. Check that the backend is running cleanly
-docker compose logs -f --tail=30
+docker compose -p sunset-hotel logs -f --tail=30
 ```
 *(Press `Ctrl + C` anytime to exit the logs view — the backend stays running in the background).*
 
@@ -189,7 +189,7 @@ docker compose logs -f --tail=30
 ### 💡 Quick One-Liner (Copy-Paste)
 You can run all update commands in a single command on your VPS:
 ```bash
-cd /var/www/sunset-backend && git pull origin main && cd backend && docker compose up --build -d && docker compose ps
+cd /var/www/sunset-backend && git pull origin main && cd backend && docker compose -p sunset-hotel up --build -d && docker compose -p sunset-hotel ps
 ```
 
 ---
