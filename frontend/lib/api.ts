@@ -121,9 +121,51 @@ export async function submitInquiry(payload: InquiryPayload): Promise<{ success:
       return { success: false, message: err.message || "Failed to submit inquiry. Please call or WhatsApp us directly." };
     }
 
+    // Save copy to local cache for instant Admin Panel visibility
+    if (typeof window !== "undefined") {
+      try {
+        const cached = JSON.parse(localStorage.getItem("sunset_cached_leads") || "[]");
+        const newLead = {
+          id: "lead-" + Date.now(),
+          fullName: payload.fullName,
+          phone: payload.phone,
+          email: payload.email || null,
+          projectSlug: payload.projectSlug || "kuakata-hotel",
+          packageSlug: payload.packageSlug || "general",
+          message: payload.message || "Investment inquiry via website",
+          status: "NEW",
+          notes: null,
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem("sunset_cached_leads", JSON.stringify([newLead, ...cached]));
+      } catch {
+        // ignore
+      }
+    }
+
     return { success: true };
   } catch {
     // If backend is off, emulate graceful receipt in dev or alert user
+    if (typeof window !== "undefined") {
+      try {
+        const cached = JSON.parse(localStorage.getItem("sunset_cached_leads") || "[]");
+        const newLead = {
+          id: "lead-" + Date.now(),
+          fullName: payload.fullName,
+          phone: payload.phone,
+          email: payload.email || null,
+          projectSlug: payload.projectSlug || "kuakata-hotel",
+          packageSlug: payload.packageSlug || "general",
+          message: payload.message || "Investment inquiry via website",
+          status: "NEW",
+          notes: null,
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem("sunset_cached_leads", JSON.stringify([newLead, ...cached]));
+      } catch {
+        // ignore
+      }
+    }
     return { success: true, message: "Inquiry recorded locally (API offline mode)." };
   }
 }

@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { InvestmentLeadPopup } from "@/components/ui/InvestmentLeadPopup";
 import { getSiteSettings } from "@/lib/api";
 
 const playfair = Playfair_Display({
@@ -177,6 +178,7 @@ export default async function RootLayout({
           </main>
           <Footer settings={settings} />
           <FloatingWhatsApp phone={settings.whatsapp} />
+          <InvestmentLeadPopup />
         </LanguageProvider>
       </body>
     </html>
