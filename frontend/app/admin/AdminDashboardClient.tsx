@@ -15,6 +15,7 @@ import {
   Phone,
   MessageSquare,
   Download,
+  Printer,
   CheckCircle,
   Clock,
   RefreshCw,
@@ -758,6 +759,263 @@ export function AdminDashboardClient() {
     document.body.removeChild(link);
   };
 
+  // Print Leads / Save as PDF
+  const printLeadsToPDF = () => {
+    const printWindow = window.open("", "_blank", "width=1100,height=800");
+    if (!printWindow) {
+      alert("Please allow popups in your browser to print or export PDF.");
+      return;
+    }
+
+    const currentDate = new Date().toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    const escapeHtml = (text: string) => {
+      return (text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    const rowsHtml = filteredLeads
+      .map(
+        (lead, idx) => `
+        <tr>
+          <td style="text-align: center; font-weight: 600;">${idx + 1}</td>
+          <td><strong>${escapeHtml(lead.fullName)}</strong></td>
+          <td style="font-family: monospace; white-space: nowrap;">${escapeHtml(lead.phone)}</td>
+          <td>${lead.email ? escapeHtml(lead.email) : "—"}</td>
+          <td style="white-space: nowrap;">${escapeHtml(lead.projectSlug)}</td>
+          <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
+          <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
+          <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
+          <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Sunset Leads Report - ${new Date().toISOString().slice(0, 10)}</title>
+        <style>
+          @page {
+            size: A4 landscape;
+            margin: 10mm;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #111827;
+            margin: 0;
+            padding: 16px;
+            font-size: 11px;
+            background: #ffffff;
+          }
+          .no-print-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f3f4f6;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
+          }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+          }
+          .btn-primary {
+            background-color: #1B8C4D;
+            color: #ffffff;
+          }
+          .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+            margin-left: 8px;
+          }
+          .btn:hover {
+            opacity: 0.9;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #1B8C4D;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+          }
+          .company-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1B8C4D;
+            margin: 0;
+            letter-spacing: 0.5px;
+          }
+          .company-sub {
+            font-size: 11px;
+            color: #525B64;
+            margin: 2px 0 0 0;
+          }
+          .report-meta {
+            text-align: right;
+            font-size: 10px;
+            color: #525B64;
+          }
+          .summary-bar {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 6px 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 24px;
+            font-size: 10px;
+            color: #374151;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+          }
+          th {
+            background-color: #1B8C4D;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 6px 8px;
+            border: 1px solid #1B8C4D;
+            text-transform: uppercase;
+            font-size: 9.5px;
+            letter-spacing: 0.3px;
+          }
+          td {
+            padding: 5px 8px;
+            border: 1px solid #e5e7eb;
+            vertical-align: top;
+          }
+          tr:nth-child(even) {
+            background-color: #fbfbfb;
+          }
+          .status-badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+          }
+          .status-new { background-color: #dbeafe; color: #1e40af; }
+          .status-contacted { background-color: #fef3c7; color: #92400e; }
+          .status-qualified { background-color: #e0e7ff; color: #3730a3; }
+          .status-converted { background-color: #d1fae5; color: #065f46; }
+          .status-closed { background-color: #fee2e2; color: #991b1b; }
+          .footer {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 9px;
+            color: #9ca3af;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 8px;
+          }
+          @media print {
+            .no-print-toolbar {
+              display: none !important;
+            }
+            body {
+              padding: 0;
+            }
+            tr {
+              page-break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="no-print-toolbar">
+          <div>
+            <strong>Previewing Leads Report</strong> — Choose <em>"Save as PDF"</em> or select your printer.
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+            <button class="btn btn-secondary" onclick="window.close()">Close</button>
+          </div>
+        </div>
+
+        <div class="header">
+          <div>
+            <h1 class="company-title">SUNSET KUAKATA HOTEL & RESORT LTD.</h1>
+            <p class="company-sub">Investor Leads & CRM Management Official Report</p>
+          </div>
+          <div class="report-meta">
+            <div><strong>Generated:</strong> ${currentDate}</div>
+            <div><strong>Total Exported Leads:</strong> ${filteredLeads.length}</div>
+          </div>
+        </div>
+
+        <div class="summary-bar">
+          <div><strong>Project Filter:</strong> ${escapeHtml(selectedProjectFilter.toUpperCase())}</div>
+          <div><strong>Status Filter:</strong> ${escapeHtml(selectedStatusFilter.toUpperCase())}</div>
+          <div><strong>Search Query:</strong> ${searchQuery ? `"${escapeHtml(searchQuery)}"` : "All"}</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25px; text-align: center;">#</th>
+              <th>Client Name</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>Project</th>
+              <th>Package Tier</th>
+              <th>Status</th>
+              <th>Inquiry / Notes</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || '<tr><td colspan="9" style="text-align: center; padding: 18px; color: #6b7280;">No leads found matching current filters.</td></tr>'}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Sunset Kuakata Hotel & Resort Ltd. — Governed by Company Act 1994. Confidential internal management document.
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 300);
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   // Filtered Leads
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
@@ -1181,6 +1439,16 @@ export function AdminDashboardClient() {
                   className="p-2 border border-ink/20 rounded-xl hover:bg-ash text-grey-700 cursor-pointer flex items-center justify-center"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoadingLeads ? "animate-spin" : ""}`} />
+                </button>
+
+                {/* Print / PDF Option */}
+                <button
+                  onClick={printLeadsToPDF}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-ash text-ink border border-ink/20 rounded-xl text-xs font-semibold cursor-pointer shadow-xs transition-colors"
+                  title="Print or Save as PDF"
+                >
+                  <Printer className="w-3.5 h-3.5 text-green-900" />
+                  <span>Print / PDF</span>
                 </button>
 
                 {/* CSV Export */}
