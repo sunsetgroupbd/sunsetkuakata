@@ -144,10 +144,10 @@ export function InvestmentLeadPopup() {
             setIsSuccess(false);
             setErrorMessage("");
           }}
-          className="fixed bottom-6 left-6 z-40 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer text-xs font-semibold"
+          className="fixed bottom-6 left-6 z-40 bg-white hover:bg-stone-50 text-stone-800 border border-green-900/30 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer text-xs font-semibold"
           title={isBn ? "বিনিয়োগ তথ্য" : "Investment Inquiry"}
         >
-          <Building2 className="w-4 h-4 text-emerald-700" />
+          <Building2 className="w-4 h-4 text-green-900" />
           <span>{isBn ? "বিনিয়োগে আগ্রহী?" : "Interested in Investing?"}</span>
         </button>
       )}
@@ -159,6 +159,9 @@ export function InvestmentLeadPopup() {
             className="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Top brand accent bar */}
+            <div className="h-1 w-full bg-green-900" />
+
             {/* Close Button */}
             <button
               onClick={handleClose}
@@ -171,7 +174,7 @@ export function InvestmentLeadPopup() {
             {isSuccess ? (
               /* Success State */
               <div className="p-8 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-green-900/10 text-green-900 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <h3 className="font-serif text-xl font-bold text-stone-900">
@@ -185,7 +188,7 @@ export function InvestmentLeadPopup() {
                 <div className="pt-2">
                   <button
                     onClick={handleClose}
-                    className="px-5 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                    className="px-6 py-2.5 bg-green-900 hover:bg-green-600 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs"
                   >
                     {isBn ? "ঠিক আছে" : "Close"}
                   </button>
@@ -238,7 +241,7 @@ export function InvestmentLeadPopup() {
                           onClick={() => setProjectSlug(opt.slug)}
                           className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-left border transition-all cursor-pointer ${
                             projectSlug === opt.slug
-                              ? "bg-stone-900 text-white border-stone-900"
+                              ? "bg-green-900 text-white border-green-900 shadow-xs"
                               : "bg-white hover:bg-stone-50 text-stone-700 border-stone-200"
                           }`}
                         >
@@ -262,7 +265,7 @@ export function InvestmentLeadPopup() {
                         onChange={(e) => setFullName(e.target.value)}
                         required
                         placeholder={isBn ? "আপনার নাম" : "Your Name"}
-                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-stone-900 focus:outline-none transition-colors"
+                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-green-900 focus:ring-1 focus:ring-green-900 focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -281,7 +284,7 @@ export function InvestmentLeadPopup() {
                         onChange={(e) => setPhone(e.target.value)}
                         required
                         placeholder="017XXXXXXXX"
-                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-stone-900 focus:outline-none transition-colors font-mono"
+                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-green-900 focus:ring-1 focus:ring-green-900 focus:outline-none transition-colors font-mono"
                       />
                     </div>
                   </div>
@@ -303,7 +306,7 @@ export function InvestmentLeadPopup() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="name@example.com"
-                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-stone-900 focus:outline-none transition-colors"
+                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:border-green-900 focus:ring-1 focus:ring-green-900 focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -313,7 +316,7 @@ export function InvestmentLeadPopup() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-medium rounded-lg text-xs sm:text-sm transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+                      className="w-full py-2.5 bg-green-900 hover:bg-green-600 text-white font-semibold rounded-lg text-xs sm:text-sm transition-all cursor-pointer shadow-sm hover:shadow-md disabled:opacity-60 flex items-center justify-center gap-2 active:scale-98"
                     >
                       {isSubmitting ? (
                         <>
