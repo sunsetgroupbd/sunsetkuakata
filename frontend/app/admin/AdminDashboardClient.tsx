@@ -736,11 +736,32 @@ export function AdminDashboardClient() {
     }
   };
 
+  // Normalize Phone for duplicate checking
+  const normalizePhone = (p: string) => {
+    const digits = (p || "").replace(/\D/g, "");
+    if (digits.startsWith("8801")) return digits.substring(2);
+    return digits;
+  };
+
+  // Duplicate Phone Map across all inquiries
+  const duplicatePhoneCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    leads.forEach((l) => {
+      const norm = normalizePhone(l.phone);
+      if (norm) {
+        counts[norm] = (counts[norm] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [leads]);
+
   // Export Leads to CSV
   const exportLeadsToCSV = () => {
-    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,IP Address,Notes,Created Date";
-    const rows = filteredLeads.map((l) =>
-      [
+    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Duplicates,IP Address,Notes,Created Date";
+    const rows = filteredLeads.map((l) => {
+      const norm = normalizePhone(l.phone);
+      const dupCount = norm ? (duplicatePhoneCounts[norm] || 1) : 1;
+      return [
         `"${l.id}"`,
         `"${l.fullName}"`,
         `"${l.phone}"`,
@@ -748,11 +769,12 @@ export function AdminDashboardClient() {
         `"${l.projectSlug}"`,
         `"${l.packageSlug || "General"}"`,
         `"${l.status}"`,
+        `"${dupCount > 1 ? `Duplicate (${dupCount}x)` : "Unique"}"`,
         `"${l.ipAddress || ""}"`,
         `"${(l.notes || "").replace(/"/g, '""')}"`,
         `"${new Date(l.createdAt).toLocaleDateString()}"`,
-      ].join(",")
-    );
+      ].join(",");
+    });
 
     const csvContent = [headerLine, ...rows].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -789,20 +811,27 @@ export function AdminDashboardClient() {
 
     const rowsHtml = filteredLeads
       .map(
-        (lead, idx) => `
-        <tr>
-          <td style="text-align: center; font-weight: 600;">${idx + 1}</td>
-          <td><strong>${escapeHtml(lead.fullName)}</strong></td>
-          <td style="font-family: monospace; white-space: nowrap;">${escapeHtml(lead.phone)}</td>
-          <td>${lead.email ? escapeHtml(lead.email) : "—"}</td>
-          <td style="white-space: nowrap;">${escapeHtml(lead.projectSlug)}</td>
-          <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
-          <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
-          <td style="font-family: monospace; font-size: 9.5px; white-space: nowrap;">${lead.ipAddress ? escapeHtml(lead.ipAddress) : "—"}</td>
-          <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
-          <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
-        </tr>
-      `
+        (lead, idx) => {
+          const norm = normalizePhone(lead.phone);
+          const dupCount = norm ? (duplicatePhoneCounts[norm] || 1) : 1;
+          return `
+          <tr>
+            <td style="text-align: center; font-weight: 600;">${idx + 1}</td>
+            <td><strong>${escapeHtml(lead.fullName)}</strong></td>
+            <td style="font-family: monospace; white-space: nowrap;">
+              ${escapeHtml(lead.phone)}
+              ${dupCount > 1 ? `<span style="color: #b45309; background: #fef3c7; border: 1px solid #fde68a; padding: 1px 4px; border-radius: 3px; font-size: 8.5px; font-weight: bold; margin-left: 4px;">DUP ${dupCount}x</span>` : ""}
+            </td>
+            <td>${lead.email ? escapeHtml(lead.email) : "—"}</td>
+            <td style="white-space: nowrap;">${escapeHtml(lead.projectSlug)}</td>
+            <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
+            <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
+            <td style="font-family: monospace; font-size: 9.5px; white-space: nowrap;">${lead.ipAddress ? escapeHtml(lead.ipAddress) : "—"}</td>
+            <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
+            <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
+          </tr>
+        `;
+        }
       )
       .join("");
 
@@ -1029,7 +1058,14 @@ export function AdminDashboardClient() {
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
       const matchProject = selectedProjectFilter === "all" || lead.projectSlug === selectedProjectFilter;
-      const matchStatus = selectedStatusFilter === "all" || lead.status === selectedStatusFilter;
+      
+      let matchStatus = true;
+      if (selectedStatusFilter === "DUPLICATES") {
+        const norm = normalizePhone(lead.phone);
+        matchStatus = Boolean(norm && (duplicatePhoneCounts[norm] || 0) > 1);
+      } else if (selectedStatusFilter !== "all") {
+        matchStatus = lead.status === selectedStatusFilter;
+      }
 
       // Date filtering
       let matchDate = true;
@@ -1080,7 +1116,7 @@ export function AdminDashboardClient() {
 
       return matchProject && matchStatus && matchDate && matchQuery;
     });
-  }, [leads, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery]);
+  }, [leads, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, duplicatePhoneCounts]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -1478,6 +1514,7 @@ export function AdminDashboardClient() {
                   <option value="FOLLOW_UP">Follow Up</option>
                   <option value="CONVERTED">Converted</option>
                   <option value="CLOSED">Closed</option>
+                  <option value="DUPLICATES">⚠️ Duplicate Numbers Only</option>
                 </select>
 
                 {/* Date Filter */}
@@ -1579,6 +1616,8 @@ export function AdminDashboardClient() {
                         );
                         const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
                         const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
+                        const normPhone = normalizePhone(lead.phone);
+                        const dupCount = normPhone ? (duplicatePhoneCounts[normPhone] || 1) : 1;
 
                         return (
                           <tr key={lead.id} className="hover:bg-sand/20 transition-colors">
@@ -1587,9 +1626,23 @@ export function AdminDashboardClient() {
                               <div className="font-bold text-ink text-sm sm:text-base">
                                 {lead.fullName}
                               </div>
-                              <div className="text-xs text-grey-700 font-mono flex items-center gap-1.5">
+                              <div className="text-xs text-grey-700 font-mono flex items-center gap-1.5 flex-wrap">
                                 <Phone className="w-3.5 h-3.5 text-grey-400 flex-shrink-0" />
                                 <span>{lead.phone}</span>
+                                {dupCount > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSearchQuery(lead.phone);
+                                    }}
+                                    className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                                    title={`This phone number appears ${dupCount} times in inquiries. Click to filter.`}
+                                  >
+                                    <AlertCircle className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                                    <span>Duplicate ({dupCount}x)</span>
+                                  </button>
+                                )}
                               </div>
                               {lead.email && (
                                 <div className="text-[11px] text-grey-600 flex items-center gap-1.5">
@@ -1719,6 +1772,8 @@ export function AdminDashboardClient() {
                     );
                     const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
                     const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
+                    const normPhone = normalizePhone(lead.phone);
+                    const dupCount = normPhone ? (duplicatePhoneCounts[normPhone] || 1) : 1;
 
                     return (
                       <div key={lead.id} className="p-4 space-y-3 bg-white hover:bg-sand/10 transition-colors">
@@ -1784,10 +1839,25 @@ export function AdminDashboardClient() {
                         <div className="text-xs space-y-1 bg-ash/50 p-2.5 rounded-xl border border-ink/5">
                           <div className="flex items-center justify-between">
                             <span className="text-grey-500 font-medium">Phone:</span>
-                            <a href={`tel:${lead.phone}`} className="font-mono text-green-900 font-semibold hover:underline flex items-center gap-1.5">
-                              <Phone className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
-                              <span>{lead.phone}</span>
-                            </a>
+                            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                              <a href={`tel:${lead.phone}`} className="font-mono text-green-900 font-semibold hover:underline flex items-center gap-1">
+                                <Phone className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
+                                <span>{lead.phone}</span>
+                              </a>
+                              {dupCount > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSearchQuery(lead.phone);
+                                  }}
+                                  className="text-[9.5px] font-semibold text-amber-800 bg-amber-50 border border-amber-300 px-1 py-0.5 rounded cursor-pointer"
+                                  title={`Submitted ${dupCount} times. Click to view all.`}
+                                >
+                                  Duplicate ({dupCount}x)
+                                </button>
+                              )}
+                            </div>
                           </div>
                           {lead.email && (
                             <div className="flex items-center justify-between text-grey-600 truncate">
