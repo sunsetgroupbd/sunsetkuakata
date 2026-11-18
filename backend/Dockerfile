@@ -44,6 +44,7 @@ RUN npm install --omit=dev
 # Copy generated Prisma client from builder
 COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
 COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=builder /app/prisma ./prisma-template
 COPY --from=builder /app/prisma ./prisma
 
 # Copy built application
@@ -55,5 +56,5 @@ RUN mkdir -p /app/prisma
 # Expose default API port
 EXPOSE 4000
 
-# Push Prisma schema to DB (SQLite file or PostgreSQL) and launch NestJS API
-CMD ["sh", "-c", "npx prisma db push && node dist/main.js"]
+# Copy fresh schema into mounted volume if needed, push Prisma schema to DB and launch NestJS API
+CMD ["sh", "-c", "cp -f /app/prisma-template/schema.prisma /app/prisma/schema.prisma 2>/dev/null || true; npx prisma db push --skip-generate && node dist/main.js"]

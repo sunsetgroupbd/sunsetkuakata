@@ -13,17 +13,50 @@ export class InquiriesService {
       return { id: "honeypot-ignored" };
     }
 
-    return this.prisma.inquiry.create({
-      data: {
-        fullName: dto.fullName.trim(),
-        phone: dto.phone.trim(),
-        email: dto.email ? dto.email.trim().toLowerCase() : null,
-        projectSlug: dto.projectSlug,
-        packageSlug: dto.packageSlug || null,
-        message: dto.message ? dto.message.trim() : null,
-        ipAddress: ipAddress ? ipAddress.trim() : null,
-      },
-    });
+    try {
+      return await this.prisma.inquiry.create({
+        data: {
+          fullName: dto.fullName.trim(),
+          phone: dto.phone.trim(),
+          email: dto.email ? dto.email.trim().toLowerCase() : null,
+          projectSlug: dto.projectSlug,
+          packageSlug: dto.packageSlug || null,
+          message: dto.message ? dto.message.trim() : null,
+          ipAddress: ipAddress ? ipAddress.trim() : null,
+        },
+      });
+    } catch (err: any) {
+      // If ipAddress column is missing in SQLite (P2022 error), attempt raw SQL alter and retry, or fallback
+      if (err?.code === "P2022" || err?.message?.includes("ipAddress")) {
+        try {
+          await this.prisma.$executeRawUnsafe(`ALTER TABLE "Inquiry" ADD COLUMN "ipAddress" TEXT;`);
+          return await this.prisma.inquiry.create({
+            data: {
+              fullName: dto.fullName.trim(),
+              phone: dto.phone.trim(),
+              email: dto.email ? dto.email.trim().toLowerCase() : null,
+              projectSlug: dto.projectSlug,
+              packageSlug: dto.packageSlug || null,
+              message: dto.message ? dto.message.trim() : null,
+              ipAddress: ipAddress ? ipAddress.trim() : null,
+            },
+          });
+        } catch {
+          // Fallback insert without ipAddress
+          return await this.prisma.inquiry.create({
+            data: {
+              fullName: dto.fullName.trim(),
+              phone: dto.phone.trim(),
+              email: dto.email ? dto.email.trim().toLowerCase() : null,
+              projectSlug: dto.projectSlug,
+              packageSlug: dto.packageSlug || null,
+              message: dto.message ? dto.message.trim() : null,
+            },
+          });
+        }
+      }
+      throw err;
+    }
   }
 
   async findAll(projectSlug?: string, status?: string, search?: string) {
