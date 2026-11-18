@@ -7,7 +7,7 @@ import { UpdateInquiryDto } from "./dto/update-inquiry.dto";
 export class InquiriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateInquiryDto) {
+  async create(dto: CreateInquiryDto, ipAddress?: string) {
     // Honeypot check: If bot fills "website", return success silently without database insertion
     if (dto.website && dto.website.length > 0) {
       return { id: "honeypot-ignored" };
@@ -21,6 +21,7 @@ export class InquiriesService {
         projectSlug: dto.projectSlug,
         packageSlug: dto.packageSlug || null,
         message: dto.message ? dto.message.trim() : null,
+        ipAddress: ipAddress ? ipAddress.trim() : null,
       },
     });
   }

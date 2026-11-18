@@ -50,6 +50,7 @@ interface Lead {
   message?: string | null;
   status: "NEW" | "CONTACTED" | "FOLLOW_UP" | "CONVERTED" | "CLOSED";
   notes?: string | null;
+  ipAddress?: string | null;
   createdAt: string;
 }
 
@@ -733,7 +734,7 @@ export function AdminDashboardClient() {
 
   // Export Leads to CSV
   const exportLeadsToCSV = () => {
-    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Notes,Created Date";
+    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,IP Address,Notes,Created Date";
     const rows = filteredLeads.map((l) =>
       [
         `"${l.id}"`,
@@ -743,6 +744,7 @@ export function AdminDashboardClient() {
         `"${l.projectSlug}"`,
         `"${l.packageSlug || "General"}"`,
         `"${l.status}"`,
+        `"${l.ipAddress || ""}"`,
         `"${(l.notes || "").replace(/"/g, '""')}"`,
         `"${new Date(l.createdAt).toLocaleDateString()}"`,
       ].join(",")
@@ -792,6 +794,7 @@ export function AdminDashboardClient() {
           <td style="white-space: nowrap;">${escapeHtml(lead.projectSlug)}</td>
           <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
           <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
+          <td style="font-family: monospace; font-size: 9.5px; white-space: nowrap;">${lead.ipAddress ? escapeHtml(lead.ipAddress) : "—"}</td>
           <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
           <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
         </tr>
@@ -987,12 +990,13 @@ export function AdminDashboardClient() {
               <th>Project</th>
               <th>Package Tier</th>
               <th>Status</th>
+              <th>IP Address</th>
               <th>Inquiry / Notes</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            ${rowsHtml || '<tr><td colspan="9" style="text-align: center; padding: 18px; color: #6b7280;">No leads found matching current filters.</td></tr>'}
+            ${rowsHtml || '<tr><td colspan="10" style="text-align: center; padding: 18px; color: #6b7280;">No leads found matching current filters.</td></tr>'}
           </tbody>
         </table>
 
@@ -1027,6 +1031,7 @@ export function AdminDashboardClient() {
         lead.fullName.toLowerCase().includes(query) ||
         lead.phone.includes(query) ||
         (lead.email && lead.email.toLowerCase().includes(query)) ||
+        (lead.ipAddress && lead.ipAddress.toLowerCase().includes(query)) ||
         (lead.message && lead.message.toLowerCase().includes(query));
 
       return matchProject && matchStatus && matchQuery;
@@ -1512,8 +1517,16 @@ export function AdminDashboardClient() {
                                   <span>{lead.email}</span>
                                 </div>
                               )}
-                              <div className="text-[10px] text-grey-400">
-                                {new Date(lead.createdAt).toLocaleString()}
+                              <div className="flex items-center gap-1.5 text-[10px] text-grey-400 flex-wrap">
+                                <span>{new Date(lead.createdAt).toLocaleString()}</span>
+                                {lead.ipAddress && (
+                                  <span
+                                    className="font-mono text-[9px] text-grey-600 bg-ash px-1.5 py-0.5 rounded border border-ink/10 inline-flex items-center gap-0.5"
+                                    title={`Visitor IP: ${lead.ipAddress}`}
+                                  >
+                                    IP: {lead.ipAddress}
+                                  </span>
+                                )}
                               </div>
                             </td>
 
@@ -1635,8 +1648,16 @@ export function AdminDashboardClient() {
                             <div className="font-bold text-ink text-sm sm:text-base leading-tight">
                               {lead.fullName}
                             </div>
-                            <div className="text-[10px] text-grey-400 mt-0.5">
-                              {new Date(lead.createdAt).toLocaleDateString()} • {new Date(lead.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <div className="text-[10px] text-grey-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                              <span>{new Date(lead.createdAt).toLocaleDateString()} • {new Date(lead.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              {lead.ipAddress && (
+                                <span
+                                  className="font-mono text-[9px] text-grey-600 bg-ash px-1 py-0.5 rounded border border-ink/10"
+                                  title={`Visitor IP: ${lead.ipAddress}`}
+                                >
+                                  IP: {lead.ipAddress}
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -2343,6 +2364,11 @@ export function AdminDashboardClient() {
                 </h3>
                 <p className="text-xs text-grey-700">
                   Client: {selectedLeadForNotes.fullName} ({selectedLeadForNotes.phone})
+                  {selectedLeadForNotes.ipAddress && (
+                    <span className="ml-2 font-mono text-[11px] text-grey-500">
+                      • IP: {selectedLeadForNotes.ipAddress}
+                    </span>
+                  )}
                 </p>
               </div>
               <button

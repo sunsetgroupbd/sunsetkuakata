@@ -7,8 +7,10 @@ import {
   Body,
   Param,
   Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
+import { Request } from "express";
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { InquiriesService } from "./inquiries.service";
 import { CreateInquiryDto } from "./dto/create-inquiry.dto";
@@ -24,8 +26,24 @@ export class InquiriesController {
   // 1. PUBLIC: Lead submission from website inquiry form
   @Post()
   @ApiOperation({ summary: "Public: Submit investor consultation inquiry" })
-  async create(@Body() createDto: CreateInquiryDto) {
-    const result = await this.inquiriesService.create(createDto);
+  async create(@Body() createDto: CreateInquiryDto, @Req() req: Request) {
+    const xForwardedFor = req.headers["x-forwarded-for"];
+    let clientIp = "";
+    if (typeof xForwardedFor === "string") {
+      clientIp = xForwardedFor.split(",")[0].trim();
+    } else if (Array.isArray(xForwardedFor) && xForwardedFor.length > 0) {
+      clientIp = xForwardedFor[0].split(",")[0].trim();
+    } else if (req.headers["x-real-ip"]) {
+      clientIp = String(req.headers["x-real-ip"]).trim();
+    } else {
+      clientIp = req.socket?.remoteAddress || req.ip || "";
+    }
+
+    if (clientIp.startsWith("::ffff:")) {
+      clientIp = clientIp.substring(7);
+    }
+
+    const result = await this.inquiriesService.create(createDto, clientIp);
     return ApiResponse.success(result, "Inquiry submitted successfully");
   }
 
