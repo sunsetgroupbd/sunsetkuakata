@@ -12,6 +12,7 @@ import {
   LogOut,
   Search,
   Filter,
+  Calendar,
   Phone,
   MessageSquare,
   Download,
@@ -124,6 +125,9 @@ export function AdminDashboardClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjectFilter, setSelectedProjectFilter] = useState("all");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("all");
+  const [selectedDateFilter, setSelectedDateFilter] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
 
   // Lead Notes Modal State
   const [selectedLeadForNotes, setSelectedLeadForNotes] = useState<Lead | null>(null);
@@ -975,6 +979,7 @@ export function AdminDashboardClient() {
         </div>
 
         <div class="summary-bar">
+          <div><strong>Date Filter:</strong> ${escapeHtml(selectedDateFilter === "custom" ? `${customStartDate || "Start"} to ${customEndDate || "End"}` : selectedDateFilter.toUpperCase())}</div>
           <div><strong>Project Filter:</strong> ${escapeHtml(selectedProjectFilter.toUpperCase())}</div>
           <div><strong>Status Filter:</strong> ${escapeHtml(selectedStatusFilter.toUpperCase())}</div>
           <div><strong>Search Query:</strong> ${searchQuery ? `"${escapeHtml(searchQuery)}"` : "All"}</div>
@@ -1025,6 +1030,45 @@ export function AdminDashboardClient() {
     return leads.filter((lead) => {
       const matchProject = selectedProjectFilter === "all" || lead.projectSlug === selectedProjectFilter;
       const matchStatus = selectedStatusFilter === "all" || lead.status === selectedStatusFilter;
+
+      // Date filtering
+      let matchDate = true;
+      if (selectedDateFilter !== "all") {
+        const leadDate = new Date(lead.createdAt);
+        const now = new Date();
+
+        if (selectedDateFilter === "today") {
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+          matchDate = leadDate >= startOfToday && leadDate <= endOfToday;
+        } else if (selectedDateFilter === "yesterday") {
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+          const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
+          matchDate = leadDate >= startOfYesterday && leadDate <= endOfYesterday;
+        } else if (selectedDateFilter === "last7days") {
+          const sevenDaysAgo = new Date(now);
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          sevenDaysAgo.setHours(0, 0, 0, 0);
+          matchDate = leadDate >= sevenDaysAgo;
+        } else if (selectedDateFilter === "thismonth") {
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          matchDate = leadDate >= startOfMonth;
+        } else if (selectedDateFilter === "custom") {
+          if (customStartDate) {
+            const start = new Date(customStartDate);
+            start.setHours(0, 0, 0, 0);
+            if (leadDate < start) matchDate = false;
+          }
+          if (customEndDate) {
+            const end = new Date(customEndDate);
+            end.setHours(23, 59, 59, 999);
+            if (leadDate > end) matchDate = false;
+          }
+        }
+      }
+
       const query = searchQuery.toLowerCase().trim();
       const matchQuery =
         !query ||
@@ -1034,9 +1078,9 @@ export function AdminDashboardClient() {
         (lead.ipAddress && lead.ipAddress.toLowerCase().includes(query)) ||
         (lead.message && lead.message.toLowerCase().includes(query));
 
-      return matchProject && matchStatus && matchQuery;
+      return matchProject && matchStatus && matchDate && matchQuery;
     });
-  }, [leads, selectedProjectFilter, selectedStatusFilter, searchQuery]);
+  }, [leads, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -1435,6 +1479,42 @@ export function AdminDashboardClient() {
                   <option value="CONVERTED">Converted</option>
                   <option value="CLOSED">Closed</option>
                 </select>
+
+                {/* Date Filter */}
+                <select
+                  value={selectedDateFilter}
+                  onChange={(e) => setSelectedDateFilter(e.target.value)}
+                  className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs font-medium cursor-pointer focus:border-green-900 focus:outline-none"
+                  title="Filter leads by date"
+                >
+                  <option value="all">All Dates</option>
+                  <option value="today">Today</option>
+                  <option value="yesterday">Yesterday</option>
+                  <option value="last7days">Last 7 Days</option>
+                  <option value="thismonth">This Month</option>
+                  <option value="custom">Custom Range...</option>
+                </select>
+
+                {/* Custom Date Pickers */}
+                {selectedDateFilter === "custom" && (
+                  <div className="flex items-center gap-1.5 col-span-2 sm:col-span-auto">
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                      className="px-2 py-1.5 bg-paper border border-ink/20 rounded-xl text-xs font-mono focus:border-green-900 focus:outline-none"
+                      title="From Date"
+                    />
+                    <span className="text-xs text-grey-400">to</span>
+                    <input
+                      type="date"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                      className="px-2 py-1.5 bg-paper border border-ink/20 rounded-xl text-xs font-mono focus:border-green-900 focus:outline-none"
+                      title="To Date"
+                    />
+                  </div>
+                )}
 
                 {/* Refresh */}
                 <button
