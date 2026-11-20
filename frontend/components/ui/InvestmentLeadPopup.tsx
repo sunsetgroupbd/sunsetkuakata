@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
 import { submitInquiry } from "@/lib/api";
+import * as fpixel from "@/lib/fpixel";
 import {
   X,
   CheckCircle2,
@@ -117,6 +118,10 @@ export function InvestmentLeadPopup() {
 
       if (res.success) {
         setIsSuccess(true);
+        fpixel.event("Lead", {
+          content_name: selectedProject?.nameEn || projectSlug,
+          content_category: "Investment Popup",
+        });
         setTimeout(() => {
           handleClose();
         }, 3000);

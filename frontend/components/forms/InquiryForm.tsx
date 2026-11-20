@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { submitInquiry } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
+import * as fpixel from "@/lib/fpixel";
 import { Button } from "@/components/ui/Button";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -90,6 +91,10 @@ export function InquiryForm({ initialProject = "sun-care", initialPackage = "" }
 
       if (res.success) {
         setSubmitStatus("success");
+        fpixel.event("Lead", {
+          content_name: data.projectSlug,
+          content_category: data.packageSlug || "General",
+        });
         setFeedbackMessage(
           res.message ||
             (isBn
