@@ -26,6 +26,7 @@ interface ProjectOption {
 }
 
 const PROJECT_OPTIONS: ProjectOption[] = [
+  { slug: "the-deck", nameEn: "The Deck (Cox's Bazar)", nameBn: "দ্য ডেক (কক্সবাজার)" },
   { slug: "kuakata-hotel", nameEn: "Sunset Kuakata Hotel", nameBn: "কুয়াকাটা হোটেল" },
   { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
   { slug: "dfi", nameEn: "Dhaka Fantasy Island", nameBn: "ঢাকা ফ্যান্টাসি আইল্যান্ড" },

@@ -59,6 +59,7 @@ export interface Package {
   buildSft?: number;
   areaSft: number; // Total area
   stayDays?: number; // UI label: Accommodation days
+  dayProfitDays?: number; // Day profit days
   stayDaysDfi?: number; // combo only
   discountPercent?: number;
   nominatedPeople?: number;

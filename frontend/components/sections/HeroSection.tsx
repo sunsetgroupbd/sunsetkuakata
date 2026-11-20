@@ -26,7 +26,7 @@ export function HeroSection() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 6000);
+    }, 4500);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 

@@ -1212,6 +1212,8 @@ export function AdminDashboardClient() {
   // Project Display Name Helper
   const getProjectName = (slug: string) => {
     switch (slug) {
+      case "the-deck":
+        return "The Deck (Cox's Bazar)";
       case "sun-care":
         return "Sun Care Hospital";
       case "dfi":
@@ -1619,6 +1621,7 @@ export function AdminDashboardClient() {
                   className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs font-medium cursor-pointer focus:border-green-900 focus:outline-none truncate"
                 >
                   <option value="all">All Projects</option>
+                  <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
                   <option value="sun-care">Sun Care Hospital</option>
                   <option value="dfi">Dhaka Fantasy Island</option>
                   <option value="kuakata-hotel">Sunset Kuakata</option>

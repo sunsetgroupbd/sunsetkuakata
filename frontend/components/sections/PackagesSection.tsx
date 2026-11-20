@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Package } from "@/lib/types";
 import { seedPackages } from "@/data/packages";
 import { useLanguage, formatLakhBDT, toBengaliNumber } from "@/lib/i18n";
-import { Crown, Sparkles, Home, Building2, ShieldCheck, Users, Percent, Gift } from "lucide-react";
+import { Crown, Sparkles, Home, Building2, ShieldCheck, Users, Percent, Gift, Calendar, Check } from "lucide-react";
 
 interface PackagesSectionProps {
   packages: Package[];
@@ -15,8 +15,9 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
   const { locale, formatNumber } = useLanguage();
   const isBn = locale === "bn";
 
-  // Project Filter Tabs (Order: 1. Sun Care, 2. Dhaka Fantasy Island (DFI), 3. Sunset Kuakata, 4. Super Combo)
+  // Project Filter Tabs (Order: 1. The Deck, 2. Sun Care, 3. Dhaka Fantasy Island, 4. Sunset Kuakata, 5. Super Combo)
   const projectTabs = [
+    { slug: "the-deck", nameEn: "The Deck (Cox's Bazar)", nameBn: "দ্য ডেক (কক্সবাজার)" },
     { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
     { slug: "dfi", nameEn: "Dhaka Fantasy Island (DFI)", nameBn: "ঢাকা ফ্যান্টাসি আইল্যান্ড (ডিএফআই)" },
     { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
@@ -185,28 +186,55 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                       </div>
                     </div>
 
-                    {/* Land & Construction / Area Detail ("Land X sft + Build Y sft = Total Z sft") */}
-                    <div className="space-y-1 pt-1.5 sm:pt-2 border-t border-ink/10 text-[9px] sm:text-xs">
-                      <span className="text-grey-700 block font-medium">
-                        {isBn ? "জমি ও নির্মাণ অনুপাত:" : "Space Allocation:"}
-                      </span>
-                      <div className="font-serif text-[9px] sm:text-xs text-ink font-semibold bg-sand/80 p-1.5 sm:p-2 rounded-md sm:rounded-lg leading-snug">
-                        {renderAreaDetail(pkg)}
+                    {/* The Deck specific highlights vs other projects space allocation */}
+                    {pkg.projectSlug === "the-deck" ? (
+                      <div className="space-y-2 pt-1.5 sm:pt-2 border-t border-ink/10">
+                        {pkg.dayProfitDays && (
+                          <div className="flex justify-between items-center text-[10px] sm:text-xs">
+                            <span className="text-grey-700 font-medium flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
+                              <span>{isBn ? "ডে প্রফিট:" : "Day Profit:"}</span>
+                            </span>
+                            <span className="font-semibold text-green-900 font-serif text-[11px] sm:text-sm">
+                              {formatNumber(pkg.dayProfitDays)} {isBn ? "দিন" : "Days"}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-ink font-medium">
+                          <ShieldCheck className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
+                          <span>{isBn ? "সাফ-কবলা মালিকানা" : "Saf-Kabala Ownership"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-ink font-medium">
+                          <Check className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
+                          <span>{isBn ? "হালাল মুনাফা" : "Halal & Shariah Profit"}</span>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <>
+                        {/* Land & Construction / Area Detail ("Land X sft + Build Y sft = Total Z sft") */}
+                        <div className="space-y-1 pt-1.5 sm:pt-2 border-t border-ink/10 text-[9px] sm:text-xs">
+                          <span className="text-grey-700 block font-medium">
+                            {isBn ? "জমি ও নির্মাণ অনুপাত:" : "Space Allocation:"}
+                          </span>
+                          <div className="font-serif text-[9px] sm:text-xs text-ink font-semibold bg-sand/80 p-1.5 sm:p-2 rounded-md sm:rounded-lg leading-snug">
+                            {renderAreaDetail(pkg)}
+                          </div>
+                        </div>
 
-                    {/* Accommodation days (UI label: "Accommodation days") */}
-                    {(pkg.stayDays || pkg.stayDaysDfi) && (
-                      <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1.5 sm:pt-2 border-t border-ink/10">
-                        <span className="text-grey-700 font-medium">
-                          {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
-                        </span>
-                        <span className="font-semibold text-ink font-serif text-[10px] sm:text-sm text-right">
-                          {pkg.stayDaysDfi
-                            ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(pkg.stayDays || 0)}d + DFI ${formatNumber(pkg.stayDaysDfi)}d`
-                            : `${formatNumber(pkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
-                        </span>
-                      </div>
+                        {/* Accommodation days (UI label: "Accommodation days") */}
+                        {(pkg.stayDays || pkg.stayDaysDfi) && (
+                          <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1.5 sm:pt-2 border-t border-ink/10">
+                            <span className="text-grey-700 font-medium">
+                              {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
+                            </span>
+                            <span className="font-semibold text-ink font-serif text-[10px] sm:text-sm text-right">
+                              {pkg.stayDaysDfi
+                                ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(pkg.stayDays || 0)}d + DFI ${formatNumber(pkg.stayDaysDfi)}d`
+                                : `${formatNumber(pkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {/* Discount Percent if applicable */}

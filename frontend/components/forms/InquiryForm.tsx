@@ -238,7 +238,7 @@ export function InquiryForm({ initialProject = "sun-care", initialPackage = "" }
                 {isBn ? "ম্যানগ্রোভ" : "Mangrove"}
               </option>
               <option value="the-deck">
-                {isBn ? "দ্য ডেক (কক্সবাজার - আসন্ন প্রকল্প)" : "The Deck (Cox's Bazar - Upcoming)"}
+                {isBn ? "দ্য ডেক – কক্সবাজার" : "The Deck – Cox's Bazar"}
               </option>
             </select>
             {errors.projectSlug && (

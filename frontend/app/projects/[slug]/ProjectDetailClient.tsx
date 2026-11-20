@@ -177,11 +177,13 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               </div>
             )}
 
-            {/* Clinical & Diagnostic Services (for healthcare projects) */}
+            {/* Services & Amenities */}
             {services && services.length > 0 && (
               <div className="space-y-4 pt-6 border-t border-ink/10">
                 <h3 className="font-serif text-xl text-ink font-semibold">
-                  {isBn ? "ক্লিনিক্যাল ও ডায়াগনস্টিক সেবাসমূহ" : "Clinical & Diagnostic Services"}
+                  {project.slug === "sun-care"
+                    ? isBn ? "ক্লিনিক্যাল ও ডায়াগনস্টিক সেবাসমূহ" : "Clinical & Diagnostic Services"
+                    : isBn ? "হোটেল সার্ভিস ও সুবিধাসমূহ" : "Hotel Services & Amenities"}
                 </h3>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {services.map((s, idx) => (

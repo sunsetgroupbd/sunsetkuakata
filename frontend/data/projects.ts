@@ -209,31 +209,47 @@ export const seedProjects: Project[] = [
   {
     id: "p-6",
     slug: "the-deck",
-    nameEn: "The Deck",
-    nameBn: "দ্য ডেক",
-    summaryEn: "Upcoming signature beachfront luxury resort in Cox's Bazar with freehold saf-kabala ownership and Shariah-compliant returns.",
-    summaryBn: "কক্সবাজারের মনোরম সৈকত ঘিরে সানসেট গ্রুপের আসন্ন পাঁচ তারকা সমমানের লাক্সারি রিসোর্ট; আজীবন সাফ-কবালা মালিকানা ও হালাল অংশীদারিত্ব।",
-    bodyEn: "The Deck is an upcoming signature beachfront resort and hospitality landmark situated in Bangladesh's premier tourism capital, Cox's Bazar. Designed with world-class coastal architecture, uninterrupted panoramic views of the Bay of Bengal, and structured under Company Act 1994 governance, The Deck offers prime freehold saf-kabala ownership and high-yield Shariah-compliant returns for visionary investors.",
-    bodyBn: "দ্য ডেক হলো পর্যটন রাজধানী কক্সবাজারের প্রাইম বিচফ্রন্টে সানসেট গ্রুপের একটি আসন্ন আন্তর্জাতিক মানের বিলাসবহুল রিসোর্ট ও হসপিটালিটি প্রকল্প। আধুনিক নান্দনিক স্থাপত্য, বঙ্গোপসাগরের প্যানোরামিক সমুদ্র দৃশ্য এবং কোম্পানি আইন ১৯৯৪ এর পূর্ণ আইনি কাঠামোর অধীনে পরিচালিত এই প্রকল্প নিশ্চিত করে আজীবন নির্ভরযোগ্য সাফ-কবালা মালিকানা ও শরীয়াহ-সম্মত সর্বোচ্চ মুনাফাজনক রিটার্ন।",
+    nameEn: "The Deck – Cox's Bazar",
+    nameBn: "দ্য ডেক – কক্সবাজার",
+    summaryEn: "5-Star Standard Hotel in Inani, Cox's Bazar located between Baywatch & Royal Tulip Sea Pearl beach resort.",
+    summaryBn: "ইনানী, কক্সবাজারে বেওয়াচ ও রয়েল টিউলিপ সি পার্ল বিচ রিসোর্টের মাঝে অবস্থিত ৫-স্টার সমমানের বিলাসবহুল হোটেল।",
+    bodyEn: "THE DECK is a 5-Star Standard Hotel project situated in prime coastal Inani, Cox's Bazar, located directly between Baywatch & Royal Tulip Sea Pearl beach resort. Covering 56 Decimal of prime land with an approximate 1,20,000 SFT build area across G+11 floors, The Deck houses 120 premium rooms across Seaside Suite, Elite Suite, and Cozy Deluxe categories. The project features world-class services including a Restaurant, Swimming Pool, Cafe, Shop, and Gym, guaranteed by statutory Saf-Kabala registration and Halal profit sharing.",
+    bodyBn: "দ্য ডেক হলো কক্সবাজারের ইনানীতে বেওয়াচ এবং রয়েল টিউলিপ সি পার্ল বিচ রিসোর্টের ঠিক মাঝে অবস্থিত একটি ৫-স্টার স্ট্যান্ডার্ড লাক্সারি হোটেল। ৫৬ শতাংশ জমির ওপর জি+১১ (G+11) তলা বিশিষ্ট ভবনে প্রায় ১,২০,০০০ বর্গফুট নির্মিত এলাকা নিয়ে এতে রয়েছে ১২০টি রুম (সি-সাইড সুইট, এলিট সুইট ও কোজি ডিলাক্স)। প্রকল্পটিতে রয়েছে রেস্তোরাঁ, সুইমিং পুল, ক্যাফে, শপ ও আধুনিক জিম। সাফ-কবলা দলিলের স্থায়ী মালিকানা ও হালাল মুনাফার প্রতিশ্রুতি নিয়ে এটি পর্যটন শিল্পের অন্যতম লাভজনক বিনিয়োগ ঠিকানা।",
     highlightsEn: [
-      "Prime beachfront location in Cox's Bazar",
-      "Upcoming iconic luxury resort & ethical hospitality destination",
-      "Panoramic unobstructed views of the Bay of Bengal",
-      "Lifetime ownership via verified statutory Saf-Kabala registration",
-      "Halal & Shariah-compliant high-yield profit distribution",
-      "Five-star equivalent amenities: infinity pool, private beach access & fine dining",
-      "Exceptional capital growth in Bangladesh's top tourism hub"
+      "Location: Inani, Cox's Bazar (Between Baywatch & Royal Tulip Sea Pearl)",
+      "Project Type: 5 Star Standard Hotel",
+      "Land Area: 56 Decimal | Build Area: Approx. 1,20,000 SFT",
+      "Structure: G+11 Floors | Total Rooms: 120 Nos",
+      "Room Categories: Seaside Suite, Elite Suite, Cozy Deluxe",
+      "World-class Services: Restaurant, Swimming Pool, Cafe, Shop, Gym",
+      "Saf-Kabala Ownership Registration",
+      "Halal & Shariah-compliant Profit Sharing"
     ],
     highlightsBn: [
-      "কক্সবাজারের প্রাইম বিচফ্রন্ট উপকূলীয় অবস্থান",
-      "আসন্ন আইকনিক লাক্সারি রিসোর্ট ও আন্তর্জাতিক আতিথেয়তা",
-      "বঙ্গোপসাগরের মনোরম প্যানোরামিক সমুদ্র দৃশ্য",
-      "বিধিবদ্ধ সাফ-কবালা দলিলের মাধ্যমে আজীবন আইনগত মালিকানা",
-      "হালাল ও শরীয়াহ নির্দেশিকা মেনে নিয়মিত মুনাফা বণ্টন",
-      "পাঁচ তারকা সমমানের সুবিধা: ইনফিনিটি পুল, প্রাইভেট বিচ ও বিশ্বমানের রেস্তোরাঁ",
-      "দেশের শীর্ষ পর্যটন কেন্দ্রে সর্বোচ্চ মূলধনী প্রবৃদ্ধি"
+      "অবস্থান: ইনানী, কক্সবাজার (বেওয়াচ ও রয়েল টিউলিপ সি পার্লের মাঝে)",
+      "প্রকল্পের ধরন: ৫-স্টার স্ট্যান্ডার্ড হোটেল",
+      "জমির পরিমাণ: ৫৬ শতাংশ | নির্মাণ এলাকা: প্রায় ১,২০,০০০ বর্গফুট",
+      "ভবন কাঠামো: জি+১১ তলা | মোট রুম: ১২০টি",
+      "রুমের ধরন: সি-সাইড সুইট, এলিট সুইট ও কোজি ডিলাক্স",
+      "সার্ভিস ও সুবিধাসমূহ: রেস্তোরাঁ, সুইমিং পুল, ক্যাফে, শপ ও জিম",
+      "সাফ-কবলা মালিকানা রেজিস্ট্রেশন",
+      "হালাল মুনাফা বণ্টন ব্যবস্থা"
     ],
-    location: "Cox's Bazar",
+    servicesEn: [
+      "Fine Dining Restaurant",
+      "Luxury Swimming Pool",
+      "Cafe & Refreshment Lounge",
+      "Convenience Retail Shop",
+      "Modern Fitness Gym"
+    ],
+    servicesBn: [
+      "রেস্তোরাঁ",
+      "সুইমিং পুল",
+      "ক্যাফে ও লাউঞ্জ",
+      "কনভেনিয়েন্স শপ",
+      "ফিটনেস জিম"
+    ],
+    location: "Inani, Cox's Bazar",
     heroImage: "/images/Thedeck.webp",
     gallery: [
       "/images/Thedeck.webp",
@@ -241,7 +257,12 @@ export const seedProjects: Project[] = [
       "/images/hero2.webp"
     ],
     order: 6,
-    status: "upcoming"
+    status: "active",
+    ownershipTotal: 2800,
+    sellableTotal: 1400,
+    totalUnits: 120,
+    totalLandSft: 243936,
+    totalBuildSft: 120000,
   }
 ];
 
