@@ -247,11 +247,10 @@ export function InvestmentLeadPopup() {
                           key={opt.slug}
                           type="button"
                           onClick={() => setProjectSlug(opt.slug)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-left border transition-all cursor-pointer ${
-                            projectSlug === opt.slug
-                              ? "bg-green-900 text-white border-green-900 shadow-xs"
-                              : "bg-white hover:bg-stone-50 text-stone-700 border-stone-200"
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-left border transition-all cursor-pointer ${projectSlug === opt.slug
+                            ? "bg-green-900 text-white border-green-900 shadow-xs"
+                            : "bg-white hover:bg-stone-50 text-stone-700 border-stone-200"
+                            }`}
                         >
                           <span className="truncate block">{isBn ? opt.nameBn : opt.nameEn}</span>
                         </button>
