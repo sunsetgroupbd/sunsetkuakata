@@ -15,12 +15,12 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
   const { locale, formatNumber } = useLanguage();
   const isBn = locale === "bn";
 
-  // Project Filter Tabs (Order: 1. The Deck, 2. Sun Care, 3. Dhaka Fantasy Island, 4. Sunset Kuakata, 5. Super Combo)
+  // Project Filter Tabs (Order: 1. Sun Care, 2. Dhaka Fantasy Island, 3. Sunset Kuakata, 4. The Deck, 5. Super Combo)
   const projectTabs = [
-    { slug: "the-deck", nameEn: "The Deck (Cox's Bazar)", nameBn: "দ্য ডেক (কক্সবাজার)" },
     { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
     { slug: "dfi", nameEn: "Dhaka Fantasy Island (DFI)", nameBn: "ঢাকা ফ্যান্টাসি আইল্যান্ড (ডিএফআই)" },
     { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
+    { slug: "the-deck", nameEn: "The Deck (Cox's Bazar)", nameBn: "দ্য ডেক (কক্সবাজার)" },
     { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
   ];
 

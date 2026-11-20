@@ -1621,10 +1621,10 @@ export function AdminDashboardClient() {
                   className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs font-medium cursor-pointer focus:border-green-900 focus:outline-none truncate"
                 >
                   <option value="all">All Projects</option>
-                  <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
                   <option value="sun-care">Sun Care Hospital</option>
                   <option value="dfi">Dhaka Fantasy Island</option>
                   <option value="kuakata-hotel">Sunset Kuakata</option>
+                  <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
                   <option value="super-combo">Super Combo</option>
                 </select>
 

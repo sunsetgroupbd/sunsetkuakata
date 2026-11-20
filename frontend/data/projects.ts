@@ -200,7 +200,7 @@ export const seedProjects: Project[] = [
       "/images/hero2.webp",
       "/images/hero1.webp"
     ],
-    order: 5,
+    order: 6,
     status: "active",
     ownershipTotal: 2800,
     sellableTotal: 1400,
@@ -256,7 +256,7 @@ export const seedProjects: Project[] = [
       "/images/hero1.webp",
       "/images/hero2.webp"
     ],
-    order: 6,
+    order: 5,
     status: "active",
     ownershipTotal: 2800,
     sellableTotal: 1400,
