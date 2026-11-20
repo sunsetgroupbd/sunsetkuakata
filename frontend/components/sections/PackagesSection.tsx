@@ -189,14 +189,14 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                     {/* The Deck specific highlights vs other projects space allocation */}
                     {pkg.projectSlug === "the-deck" ? (
                       <div className="space-y-2 pt-1.5 sm:pt-2 border-t border-ink/10">
-                        {pkg.dayProfitDays && (
+                        {Boolean(pkg.dayProfitDays && pkg.dayProfitDays > 0) && (
                           <div className="flex justify-between items-center text-[10px] sm:text-xs">
                             <span className="text-grey-700 font-medium flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5 text-green-900 flex-shrink-0" />
                               <span>{isBn ? "ডে প্রফিট:" : "Day Profit:"}</span>
                             </span>
                             <span className="font-semibold text-green-900 font-serif text-[11px] sm:text-sm">
-                              {formatNumber(pkg.dayProfitDays)} {isBn ? "দিন" : "Days"}
+                              {formatNumber(pkg.dayProfitDays || 0)} {isBn ? "দিন" : "Days"}
                             </span>
                           </div>
                         )}
@@ -222,7 +222,7 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                         </div>
 
                         {/* Accommodation days (UI label: "Accommodation days") */}
-                        {(pkg.stayDays || pkg.stayDaysDfi) && (
+                        {Boolean((pkg.stayDays && pkg.stayDays > 0) || (pkg.stayDaysDfi && pkg.stayDaysDfi > 0)) && (
                           <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1.5 sm:pt-2 border-t border-ink/10">
                             <span className="text-grey-700 font-medium">
                               {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
@@ -238,37 +238,37 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                     )}
 
                     {/* Discount Percent if applicable */}
-                    {pkg.discountPercent && (
+                    {Boolean(pkg.discountPercent && pkg.discountPercent > 0) && (
                       <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1 border-t border-ink/5">
                         <span className="text-grey-700 font-medium">
                           {isBn ? "রিসোর্ট ডিসকাউন্ট:" : "Resort Discount:"}
                         </span>
                         <span className="font-semibold text-green-900 font-serif text-[10px] sm:text-sm">
-                          {formatNumber(pkg.discountPercent)}%
+                          {formatNumber(pkg.discountPercent || 0)}%
                         </span>
                       </div>
                     )}
 
                     {/* Nominated People if applicable */}
-                    {pkg.nominatedPeople && (
+                    {Boolean(pkg.nominatedPeople && pkg.nominatedPeople > 0) && (
                       <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1 border-t border-ink/5">
                         <span className="text-grey-700 font-medium">
                           {isBn ? "মনোনীত ব্যক্তি:" : "Nominated People:"}
                         </span>
                         <span className="font-semibold text-ink font-serif text-[10px] sm:text-sm">
-                          {formatNumber(pkg.nominatedPeople)} {isBn ? "জন" : "Persons"}
+                          {formatNumber(pkg.nominatedPeople || 0)} {isBn ? "জন" : "Persons"}
                         </span>
                       </div>
                     )}
 
                     {/* Insurance Coverage if applicable */}
-                    {pkg.insuranceCoverage && (
+                    {Boolean(pkg.insuranceCoverage && pkg.insuranceCoverage > 0) && (
                       <div className="flex justify-between items-center text-[9px] sm:text-xs pt-1 border-t border-ink/5">
                         <span className="text-grey-700 font-medium">
                           {isBn ? "জীবন বীমা:" : "Insurance:"}
                         </span>
                         <span className="font-semibold text-green-900 font-serif text-[10px] sm:text-sm">
-                          {formatLakhBDT(pkg.insuranceCoverage, locale)}
+                          {formatLakhBDT(pkg.insuranceCoverage || 0, locale)}
                         </span>
                       </div>
                     )}

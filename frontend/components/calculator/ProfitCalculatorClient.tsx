@@ -408,7 +408,7 @@ export function ProfitCalculatorClient({
                 </span>
               </div>
 
-              {(selectedPkg.stayDays || selectedPkg.stayDaysDfi) && (
+              {Boolean((selectedPkg.stayDays && selectedPkg.stayDays > 0) || (selectedPkg.stayDaysDfi && selectedPkg.stayDaysDfi > 0)) && (
                 <div className="flex items-center justify-between pb-2 border-b border-ink/5">
                   <span className="text-grey-700 font-medium flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-green-900" />
@@ -424,19 +424,19 @@ export function ProfitCalculatorClient({
 
               {/* Extra Benefits */}
               <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-grey-700">
-                {selectedPkg.nominatedPeople && (
+                {Boolean(selectedPkg.nominatedPeople && selectedPkg.nominatedPeople > 0) && (
                   <span className="flex items-center gap-1 text-ink font-medium">
                     <Users className="w-3.5 h-3.5 text-green-900" />
                     {isBn ? `মনোনীত ব্যক্তি: ${selectedPkg.nominatedPeople} জন` : `Nominated: ${selectedPkg.nominatedPeople} Persons`}
                   </span>
                 )}
-                {selectedPkg.insuranceCoverage && (
+                {Boolean(selectedPkg.insuranceCoverage && selectedPkg.insuranceCoverage > 0) && (
                   <span className="flex items-center gap-1 text-ink font-medium">
                     <ShieldCheck className="w-3.5 h-3.5 text-green-900" />
-                    {isBn ? `জীবন বীমা: ${formatLakhBDT(selectedPkg.insuranceCoverage, locale)}` : `Insurance: ${formatLakhBDT(selectedPkg.insuranceCoverage, locale)}`}
+                    {isBn ? `জীবন বীমা: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}` : `Insurance: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}`}
                   </span>
                 )}
-                {selectedPkg.discountPercent && (
+                {Boolean(selectedPkg.discountPercent && selectedPkg.discountPercent > 0) && (
                   <span className="flex items-center gap-1 text-ink font-medium">
                     <Percent className="w-3.5 h-3.5 text-green-900" />
                     {isBn ? `রিসোর্ট ডিসকাউন্ট: ${selectedPkg.discountPercent}%` : `Discount: ${selectedPkg.discountPercent}%`}
