@@ -37,11 +37,12 @@ export function ProfitCalculatorClient({
 
   const [mode, setMode] = useState<"package" | "custom">("package");
 
-  // Project Filter Tabs (Order: 1. Sun Care, 2. Dhaka Fantasy Island (DFI), 3. Sunset Kuakata, 4. Super Combo)
+  // Project Filter Tabs (Order: 1. Sun Care, 2. Dhaka Fantasy Island, 3. Sunset Kuakata, 4. The Deck, 5. Super Combo)
   const projectTabs = [
     { slug: "sun-care", nameEn: "Sun Care Hospital", nameBn: "সান কেয়ার হসপিটাল" },
     { slug: "dfi", nameEn: "Dhaka Fantasy Island (DFI)", nameBn: "ঢাকা ফ্যান্টাসি আইল্যান্ড (ডিএফআই)" },
     { slug: "kuakata-hotel", nameEn: "Sunset Kuakata", nameBn: "সানসেট কুয়াকাটা" },
+    { slug: "the-deck", nameEn: "The Deck (Cox's Bazar)", nameBn: "দ্য ডেক (কক্সবাজার)" },
     { slug: "super-combo", nameEn: "Super Combo (4-in-1)", nameBn: "সুপার কম্বো (৪-ইন-১)" },
   ];
 
@@ -135,7 +136,7 @@ export function ProfitCalculatorClient({
                 </label>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
                 {projectTabs.map((tab) => (
                   <button
                     key={tab.slug}
@@ -399,50 +400,78 @@ export function ProfitCalculatorClient({
           {/* Space & Accommodation Details */}
           {mode === "package" && (
             <div className="bg-white p-4 rounded-xl border border-ink/10 space-y-3 text-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-ink/5">
-                <span className="text-grey-700 font-medium">
-                  {isBn ? "জমি ও নির্মাণ স্পেস বরাদ্দ:" : "Space Allocation:"}
-                </span>
-                <span className="font-serif font-bold text-ink">
-                  {renderAreaDetail(selectedPkg)}
-                </span>
-              </div>
+              {selectedPkg.projectSlug === "the-deck" ? (
+                <>
+                  {Boolean(selectedPkg.dayProfitDays && selectedPkg.dayProfitDays > 0) && (
+                    <div className="flex items-center justify-between pb-2 border-b border-ink/5">
+                      <span className="text-grey-700 font-medium flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-green-900" />
+                        <span>{isBn ? "ডে প্রফিট সুবিধা:" : "Day Profit:"}</span>
+                      </span>
+                      <span className="font-serif font-bold text-green-900 text-sm">
+                        {formatNumber(selectedPkg.dayProfitDays || 0)} {isBn ? "দিন" : "Days"}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-grey-700">
+                    <span className="flex items-center gap-1 text-ink font-medium">
+                      <ShieldCheck className="w-3.5 h-3.5 text-green-900" />
+                      <span>{isBn ? "সাফ-কবলা মালিকানা" : "Saf-Kabala Ownership"}</span>
+                    </span>
+                    <span className="flex items-center gap-1 text-ink font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-900" />
+                      <span>{isBn ? "হালাল মুনাফা" : "Halal & Shariah Profit"}</span>
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-ink/5">
+                    <span className="text-grey-700 font-medium">
+                      {isBn ? "জমি ও নির্মাণ স্পেস বরাদ্দ:" : "Space Allocation:"}
+                    </span>
+                    <span className="font-serif font-bold text-ink">
+                      {renderAreaDetail(selectedPkg)}
+                    </span>
+                  </div>
 
-              {Boolean((selectedPkg.stayDays && selectedPkg.stayDays > 0) || (selectedPkg.stayDaysDfi && selectedPkg.stayDaysDfi > 0)) && (
-                <div className="flex items-center justify-between pb-2 border-b border-ink/5">
-                  <span className="text-grey-700 font-medium flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-green-900" />
-                    {isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}
-                  </span>
-                  <span className="font-serif font-bold text-ink">
-                    {selectedPkg.stayDaysDfi
-                      ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(selectedPkg.stayDays || 0)}d + DFI ${formatNumber(selectedPkg.stayDaysDfi)}d`
-                      : `${formatNumber(selectedPkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
-                  </span>
-                </div>
+                  {Boolean((selectedPkg.stayDays && selectedPkg.stayDays > 0) || (selectedPkg.stayDaysDfi && selectedPkg.stayDaysDfi > 0)) && (
+                    <div className="flex items-center justify-between pb-2 border-b border-ink/5">
+                      <span className="text-grey-700 font-medium flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-green-900" />
+                        <span>{isBn ? "আবাসন সুবিধা:" : "Accommodation days:"}</span>
+                      </span>
+                      <span className="font-serif font-bold text-ink">
+                        {selectedPkg.stayDaysDfi
+                          ? `${isBn ? "কুয়াকাটা" : "Kuakata"} ${formatNumber(selectedPkg.stayDays || 0)}d + DFI ${formatNumber(selectedPkg.stayDaysDfi)}d`
+                          : `${formatNumber(selectedPkg.stayDays || 0)} ${isBn ? "দিন" : "days"}`}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Extra Benefits */}
+                  <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-grey-700">
+                    {Boolean(selectedPkg.nominatedPeople && selectedPkg.nominatedPeople > 0) && (
+                      <span className="flex items-center gap-1 text-ink font-medium">
+                        <Users className="w-3.5 h-3.5 text-green-900" />
+                        {isBn ? `মনোনীত ব্যক্তি: ${selectedPkg.nominatedPeople} জন` : `Nominated: ${selectedPkg.nominatedPeople} Persons`}
+                      </span>
+                    )}
+                    {Boolean(selectedPkg.insuranceCoverage && selectedPkg.insuranceCoverage > 0) && (
+                      <span className="flex items-center gap-1 text-ink font-medium">
+                        <ShieldCheck className="w-3.5 h-3.5 text-green-900" />
+                        {isBn ? `জীবন বীমা: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}` : `Insurance: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}`}
+                      </span>
+                    )}
+                    {Boolean(selectedPkg.discountPercent && selectedPkg.discountPercent > 0) && (
+                      <span className="flex items-center gap-1 text-ink font-medium">
+                        <Percent className="w-3.5 h-3.5 text-green-900" />
+                        {isBn ? `রিসোর্ট ডিসকাউন্ট: ${selectedPkg.discountPercent}%` : `Discount: ${selectedPkg.discountPercent}%`}
+                      </span>
+                    )}
+                  </div>
+                </>
               )}
-
-              {/* Extra Benefits */}
-              <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-grey-700">
-                {Boolean(selectedPkg.nominatedPeople && selectedPkg.nominatedPeople > 0) && (
-                  <span className="flex items-center gap-1 text-ink font-medium">
-                    <Users className="w-3.5 h-3.5 text-green-900" />
-                    {isBn ? `মনোনীত ব্যক্তি: ${selectedPkg.nominatedPeople} জন` : `Nominated: ${selectedPkg.nominatedPeople} Persons`}
-                  </span>
-                )}
-                {Boolean(selectedPkg.insuranceCoverage && selectedPkg.insuranceCoverage > 0) && (
-                  <span className="flex items-center gap-1 text-ink font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5 text-green-900" />
-                    {isBn ? `জীবন বীমা: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}` : `Insurance: ${formatLakhBDT(selectedPkg.insuranceCoverage || 0, locale)}`}
-                  </span>
-                )}
-                {Boolean(selectedPkg.discountPercent && selectedPkg.discountPercent > 0) && (
-                  <span className="flex items-center gap-1 text-ink font-medium">
-                    <Percent className="w-3.5 h-3.5 text-green-900" />
-                    {isBn ? `রিসোর্ট ডিসকাউন্ট: ${selectedPkg.discountPercent}%` : `Discount: ${selectedPkg.discountPercent}%`}
-                  </span>
-                )}
-              </div>
             </div>
           )}
         </div>
