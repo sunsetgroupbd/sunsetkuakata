@@ -7,6 +7,7 @@ import * as z from "zod";
 import { submitInquiry } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
 import * as fpixel from "@/lib/fpixel";
+import { detectLeadSource } from "@/lib/sourceTracker";
 import { Button } from "@/components/ui/Button";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -80,13 +81,18 @@ export function InquiryForm({ initialProject = "sun-care", initialPackage = "" }
     setFeedbackMessage("");
 
     try {
+      const source = detectLeadSource();
+      const formattedMessage = data.message
+        ? `[Source: ${source}] ${data.message}`
+        : `[Source: ${source}] Inquiry submitted via website form.`;
+
       const res = await submitInquiry({
         fullName: data.fullName,
         phone: data.phone,
         email: data.email || undefined,
         projectSlug: data.projectSlug,
         packageSlug: data.packageSlug || undefined,
-        message: data.message || undefined,
+        message: formattedMessage,
       });
 
       if (res.success) {

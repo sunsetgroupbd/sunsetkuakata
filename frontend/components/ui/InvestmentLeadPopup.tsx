@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
 import { submitInquiry } from "@/lib/api";
 import * as fpixel from "@/lib/fpixel";
+import { detectLeadSource } from "@/lib/sourceTracker";
 import {
   X,
   CheckCircle2,
@@ -108,12 +109,13 @@ export function InvestmentLeadPopup() {
 
     try {
       const selectedProject = PROJECT_OPTIONS.find((p) => p.slug === projectSlug);
+      const source = detectLeadSource();
       const res = await submitInquiry({
         fullName: fullName.trim(),
         phone: cleanPhone,
         email: email.trim() || undefined,
         projectSlug,
-        message: `[Investor Lead] Interested in investing in ${selectedProject?.nameEn || projectSlug}. Saf-Kabala brochure requested.`,
+        message: `[Source: ${source}] [Investor Lead] Interested in investing in ${selectedProject?.nameEn || projectSlug}. Saf-Kabala brochure requested.`,
       });
 
       if (res.success) {

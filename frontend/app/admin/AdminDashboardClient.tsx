@@ -35,6 +35,8 @@ import {
   Shield,
   Trash2,
   Building2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/svg/WhatsAppIcon";
 import { BdtIcon } from "@/components/svg/BdtIcon";
@@ -128,6 +130,45 @@ export function AdminDashboardClient() {
   const [selectedDateFilter, setSelectedDateFilter] = useState("all");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
+
+  // Hidden Leads & Visibility Filter (Exclude from CSV/PDF)
+  const [hiddenLeadIds, setHiddenLeadIds] = useState<Set<string>>(new Set());
+  const [leadVisibilityTab, setLeadVisibilityTab] = useState<"active" | "hidden" | "all">("active");
+
+  // Page-wise Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
+  // Load hidden lead IDs from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("sunset_hidden_lead_ids");
+      if (stored) {
+        setHiddenLeadIds(new Set(JSON.parse(stored)));
+      }
+    } catch {}
+  }, []);
+
+  const toggleHideLead = (leadId: string) => {
+    setHiddenLeadIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(leadId)) {
+        next.delete(leadId);
+      } else {
+        next.add(leadId);
+      }
+      try {
+        localStorage.setItem("sunset_hidden_lead_ids", JSON.stringify(Array.from(next)));
+      } catch {}
+      return next;
+    });
+  };
+
+  const extractLeadSource = (msg?: string | null) => {
+    if (!msg) return null;
+    const match = msg.match(/\[Source:\s*([^\]]+)\]/i);
+    return match ? match[1].trim() : null;
+  };
 
   // Lead Notes Modal State
   const [selectedLeadForNotes, setSelectedLeadForNotes] = useState<Lead | null>(null);
@@ -755,12 +796,16 @@ export function AdminDashboardClient() {
     return counts;
   }, [leads]);
 
-  // Export Leads to CSV
+  // Export Leads to CSV (Hidden leads are completely excluded)
   const exportLeadsToCSV = () => {
-    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Duplicates,IP Address,Notes,Created Date";
-    const rows = filteredLeads.map((l) => {
+    // Exclude hidden leads from exports as requested
+    const exportableLeads = filteredLeads.filter((l) => !hiddenLeadIds.has(l.id));
+
+    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Source,Duplicates,IP Address,Notes,Created Date";
+    const rows = exportableLeads.map((l) => {
       const norm = normalizePhone(l.phone);
       const dupCount = norm ? (duplicatePhoneCounts[norm] || 1) : 1;
+      const src = extractLeadSource(l.message) || "Website Direct";
       return [
         `"${l.id}"`,
         `"${l.fullName}"`,
@@ -769,6 +814,7 @@ export function AdminDashboardClient() {
         `"${l.projectSlug}"`,
         `"${l.packageSlug || "General"}"`,
         `"${l.status}"`,
+        `"${src}"`,
         `"${dupCount > 1 ? `Duplicate (${dupCount}x)` : "Unique"}"`,
         `"${l.ipAddress || ""}"`,
         `"${(l.notes || "").replace(/"/g, '""')}"`,
@@ -787,13 +833,16 @@ export function AdminDashboardClient() {
     document.body.removeChild(link);
   };
 
-  // Print Leads / Save as PDF
+  // Print Leads / Save as PDF (Hidden leads are completely excluded)
   const printLeadsToPDF = () => {
     const printWindow = window.open("", "_blank", "width=1100,height=800");
     if (!printWindow) {
       alert("Please allow popups in your browser to print or export PDF.");
       return;
     }
+
+    // Exclude hidden leads from PDF as requested
+    const exportableLeads = filteredLeads.filter((l) => !hiddenLeadIds.has(l.id));
 
     const currentDate = new Date().toLocaleString("en-US", {
       dateStyle: "medium",
@@ -809,11 +858,12 @@ export function AdminDashboardClient() {
         .replace(/'/g, "&#039;");
     };
 
-    const rowsHtml = filteredLeads
+    const rowsHtml = exportableLeads
       .map(
         (lead, idx) => {
           const norm = normalizePhone(lead.phone);
           const dupCount = norm ? (duplicatePhoneCounts[norm] || 1) : 1;
+          const src = extractLeadSource(lead.message) || "Website Direct";
           return `
           <tr>
             <td style="text-align: center; font-weight: 600;">${idx + 1}</td>
@@ -826,8 +876,9 @@ export function AdminDashboardClient() {
             <td style="white-space: nowrap;">${escapeHtml(lead.projectSlug)}</td>
             <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
             <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
+            <td style="font-size: 9.5px; white-space: nowrap; font-weight: 600; color: #1e40af;">${escapeHtml(src)}</td>
             <td style="font-family: monospace; font-size: 9.5px; white-space: nowrap;">${lead.ipAddress ? escapeHtml(lead.ipAddress) : "—"}</td>
-            <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
+            <td style="font-size: 10px; max-width: 230px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
             <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
           </tr>
         `;
@@ -1003,7 +1054,7 @@ export function AdminDashboardClient() {
           </div>
           <div class="report-meta">
             <div><strong>Generated:</strong> ${currentDate}</div>
-            <div><strong>Total Exported Leads:</strong> ${filteredLeads.length}</div>
+            <div><strong>Total Exported Leads:</strong> ${exportableLeads.length} ${hiddenLeadIds.size > 0 ? `(${hiddenLeadIds.size} hidden excluded)` : ""}</div>
           </div>
         </div>
 
@@ -1024,13 +1075,14 @@ export function AdminDashboardClient() {
               <th>Project</th>
               <th>Package Tier</th>
               <th>Status</th>
+              <th>Source</th>
               <th>IP Address</th>
               <th>Inquiry / Notes</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            ${rowsHtml || '<tr><td colspan="10" style="text-align: center; padding: 18px; color: #6b7280;">No leads found matching current filters.</td></tr>'}
+            ${rowsHtml || '<tr><td colspan="11" style="text-align: center; padding: 18px; color: #6b7280;">No exportable leads found matching current filters.</td></tr>'}
           </tbody>
         </table>
 
@@ -1057,6 +1109,11 @@ export function AdminDashboardClient() {
   // Filtered Leads
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
+      // Visibility Filter (Active, Hidden, All)
+      const isHidden = hiddenLeadIds.has(lead.id);
+      if (leadVisibilityTab === "active" && isHidden) return false;
+      if (leadVisibilityTab === "hidden" && !isHidden) return false;
+
       const matchProject = selectedProjectFilter === "all" || lead.projectSlug === selectedProjectFilter;
       
       let matchStatus = true;
@@ -1116,7 +1173,23 @@ export function AdminDashboardClient() {
 
       return matchProject && matchStatus && matchDate && matchQuery;
     });
-  }, [leads, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, duplicatePhoneCounts]);
+  }, [leads, hiddenLeadIds, leadVisibilityTab, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, duplicatePhoneCounts]);
+
+  // Lead Counts for Tabs
+  const activeLeadsCount = useMemo(() => leads.filter((l) => !hiddenLeadIds.has(l.id)).length, [leads, hiddenLeadIds]);
+  const hiddenLeadsCount = useMemo(() => leads.filter((l) => hiddenLeadIds.has(l.id)).length, [leads, hiddenLeadIds]);
+
+  // Page-wise Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
+  const paginatedLeads = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredLeads.slice(start, start + pageSize);
+  }, [filteredLeads, currentPage, pageSize]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, leadVisibilityTab, pageSize]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -1472,6 +1545,60 @@ export function AdminDashboardClient() {
         {activeTab === "leads" && (
           <div className="space-y-6">
 
+            {/* Lead Visibility View Tabs (Active vs Hidden/Excluded vs All) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-ink/10 shadow-xs">
+              <div className="flex items-center gap-1.5 p-1 bg-ash rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setLeadVisibilityTab("active")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    leadVisibilityTab === "active"
+                      ? "bg-white text-green-900 shadow-xs font-bold"
+                      : "text-grey-600 hover:text-ink"
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5 text-green-900" />
+                  <span>Active Leads</span>
+                  <span className="bg-green-900/10 text-green-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                    {activeLeadsCount}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLeadVisibilityTab("hidden")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    leadVisibilityTab === "hidden"
+                      ? "bg-white text-amber-900 shadow-xs font-bold"
+                      : "text-grey-600 hover:text-ink"
+                  }`}
+                >
+                  <EyeOff className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Hidden / Excluded</span>
+                  <span className="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                    {hiddenLeadsCount}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLeadVisibilityTab("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    leadVisibilityTab === "all"
+                      ? "bg-white text-ink shadow-xs font-bold"
+                      : "text-grey-600 hover:text-ink"
+                  }`}
+                >
+                  <span>All ({leads.length})</span>
+                </button>
+              </div>
+
+              <div className="text-[11px] text-grey-500 flex items-center gap-1.5 px-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Hidden leads are excluded from CSV and PDF exports automatically.</span>
+              </div>
+            </div>
+
             {/* Filter and Action Bar (Mobile-Optimized) */}
             <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-ink/10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
 
@@ -1608,7 +1735,7 @@ export function AdminDashboardClient() {
                         </td>
                       </tr>
                     ) : (
-                      filteredLeads.map((lead) => {
+                      paginatedLeads.map((lead) => {
                         const whatsappMsg = encodeURIComponent(
                           `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
                             lead.projectSlug
@@ -1618,13 +1745,30 @@ export function AdminDashboardClient() {
                         const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
                         const normPhone = normalizePhone(lead.phone);
                         const dupCount = normPhone ? (duplicatePhoneCounts[normPhone] || 1) : 1;
+                        const isHidden = hiddenLeadIds.has(lead.id);
+                        const leadSource = extractLeadSource(lead.message);
 
                         return (
-                          <tr key={lead.id} className="hover:bg-sand/20 transition-colors">
+                          <tr
+                            key={lead.id}
+                            className={`transition-colors ${
+                              isHidden
+                                ? "bg-amber-50/40 border-l-4 border-l-amber-500 opacity-80 hover:bg-amber-100/30"
+                                : "hover:bg-sand/20"
+                            }`}
+                          >
                             {/* Client & Contact */}
                             <td className="py-4 px-4 space-y-1">
-                              <div className="font-bold text-ink text-sm sm:text-base">
-                                {lead.fullName}
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-ink text-sm sm:text-base">
+                                  {lead.fullName}
+                                </span>
+                                {isHidden && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
+                                    <EyeOff className="w-3 h-3 text-amber-700 flex-shrink-0" />
+                                    <span>Hidden</span>
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-grey-700 font-mono flex items-center gap-1.5 flex-wrap">
                                 <Phone className="w-3.5 h-3.5 text-grey-400 flex-shrink-0" />
@@ -1652,6 +1796,19 @@ export function AdminDashboardClient() {
                               )}
                               <div className="flex items-center gap-1.5 text-[10px] text-grey-400 flex-wrap">
                                 <span>{new Date(lead.createdAt).toLocaleString()}</span>
+                                {leadSource && (
+                                  <span
+                                    className={`inline-flex items-center gap-1 font-semibold text-[9.5px] px-1.5 py-0.5 rounded border ${
+                                      leadSource.includes("Facebook")
+                                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                                        : leadSource.includes("Google")
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        : "bg-ash text-grey-700 border-ink/10"
+                                    }`}
+                                  >
+                                    {leadSource}
+                                  </span>
+                                )}
                                 {lead.ipAddress && (
                                   <span
                                     className="font-mono text-[9px] text-grey-600 bg-ash px-1.5 py-0.5 rounded border border-ink/10 inline-flex items-center gap-0.5"
@@ -1719,9 +1876,23 @@ export function AdminDashboardClient() {
                               </select>
                             </td>
 
-                            {/* 1-Click Direct Action Buttons + Delete */}
+                            {/* 1-Click Direct Action Buttons + Hide/Unhide + Delete */}
                             <td className="py-4 px-4 text-right">
                               <div className="flex items-center justify-end gap-1.5">
+                                {/* Hide / Unhide Toggle */}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleHideLead(lead.id)}
+                                  title={isHidden ? "Unhide lead (include in CSV / PDF)" : "Hide lead (exclude from CSV / PDF)"}
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer shadow-2xs border ${
+                                    isHidden
+                                      ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-300"
+                                      : "bg-ash hover:bg-ink/10 text-grey-600 border-ink/10"
+                                  }`}
+                                >
+                                  {isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                </button>
+
                                 <a
                                   href={`https://wa.me/${waPhone}?text=${whatsappMsg}`}
                                   target="_blank"
@@ -1764,7 +1935,7 @@ export function AdminDashboardClient() {
                     No inquiries found matching your filters.
                   </div>
                 ) : (
-                  filteredLeads.map((lead) => {
+                  paginatedLeads.map((lead) => {
                     const whatsappMsg = encodeURIComponent(
                       `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
                         lead.projectSlug
@@ -1774,17 +1945,47 @@ export function AdminDashboardClient() {
                     const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
                     const normPhone = normalizePhone(lead.phone);
                     const dupCount = normPhone ? (duplicatePhoneCounts[normPhone] || 1) : 1;
+                    const isHidden = hiddenLeadIds.has(lead.id);
+                    const leadSource = extractLeadSource(lead.message);
 
                     return (
-                      <div key={lead.id} className="p-4 space-y-3 bg-white hover:bg-sand/10 transition-colors">
-                        {/* Top: Name & Status Dropdown & Delete */}
+                      <div
+                        key={lead.id}
+                        className={`p-4 space-y-3 transition-colors ${
+                          isHidden
+                            ? "bg-amber-50/40 border-l-4 border-l-amber-500 opacity-85"
+                            : "bg-white hover:bg-sand/10"
+                        }`}
+                      >
+                        {/* Top: Name & Status Dropdown & Hide & Delete */}
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="font-bold text-ink text-sm sm:text-base leading-tight">
-                              {lead.fullName}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-bold text-ink text-sm sm:text-base leading-tight">
+                                {lead.fullName}
+                              </span>
+                              {isHidden && (
+                                <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                                  <EyeOff className="w-2.5 h-2.5 text-amber-700" />
+                                  Hidden
+                                </span>
+                              )}
                             </div>
                             <div className="text-[10px] text-grey-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
                               <span>{new Date(lead.createdAt).toLocaleDateString()} • {new Date(lead.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              {leadSource && (
+                                <span
+                                  className={`inline-flex items-center gap-1 font-semibold text-[9px] px-1.5 py-0.2 rounded border ${
+                                    leadSource.includes("Facebook")
+                                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                                      : leadSource.includes("Google")
+                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                      : "bg-ash text-grey-700 border-ink/10"
+                                  }`}
+                                >
+                                  {leadSource}
+                                </span>
+                              )}
                               {lead.ipAddress && (
                                 <span
                                   className="font-mono text-[9px] text-grey-600 bg-ash px-1 py-0.5 rounded border border-ink/10"
@@ -1812,6 +2013,20 @@ export function AdminDashboardClient() {
                               <option value="CONVERTED">CONVERTED</option>
                               <option value="CLOSED">CLOSED</option>
                             </select>
+
+                            {/* Hide / Unhide button on mobile */}
+                            <button
+                              type="button"
+                              onClick={() => toggleHideLead(lead.id)}
+                              title={isHidden ? "Unhide lead" : "Hide lead"}
+                              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                isHidden
+                                  ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-300"
+                                  : "bg-ash hover:bg-ink/10 text-grey-600 border-ink/10"
+                              }`}
+                            >
+                              {isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                            </button>
 
                             <button
                               onClick={() => setLeadToDelete(lead)}
@@ -1923,6 +2138,73 @@ export function AdminDashboardClient() {
                     );
                   })
                 )}
+              </div>
+
+              {/* Pagination Controls Footer */}
+              <div className="bg-white px-4 py-3 border-t border-ink/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-grey-700">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span>
+                    Showing{" "}
+                    <strong className="text-ink">
+                      {filteredLeads.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                    </strong>{" "}
+                    to{" "}
+                    <strong className="text-ink">
+                      {Math.min(currentPage * pageSize, filteredLeads.length)}
+                    </strong>{" "}
+                    of <strong className="text-ink">{filteredLeads.length}</strong> leads
+                  </span>
+                  {hiddenLeadsCount > 0 && (
+                    <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full font-medium">
+                      {hiddenLeadsCount} hidden
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* Per page selector */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-grey-500">Per page:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="px-2 py-1 bg-paper border border-ink/20 rounded-lg text-xs font-medium cursor-pointer focus:border-green-900 focus:outline-none"
+                    >
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+
+                  {/* Prev / Next controls */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                      className="p-1.5 rounded-lg border border-ink/15 hover:bg-ash text-grey-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      title="Previous page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="px-2 text-xs font-medium text-ink">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                      className="p-1.5 rounded-lg border border-ink/15 hover:bg-ash text-grey-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      title="Next page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
             </div>
