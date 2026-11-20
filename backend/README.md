@@ -170,7 +170,7 @@ Log in to your VPS terminal and run:
 
 ```bash
 # 1. Navigate to the project root
-cd /var/www/sunset-backend
+cd /var/www/sunset-hotel-api
 
 # 2. Pull the latest code from GitHub
 git pull origin main
@@ -189,7 +189,7 @@ docker compose -p sunset-hotel logs -f --tail=30
 ### 💡 Quick One-Liner (Copy-Paste)
 You can run all update commands in a single command on your VPS:
 ```bash
-cd /var/www/sunset-backend && git pull origin main && cd backend && docker compose -p sunset-hotel up --build -d && docker compose -p sunset-hotel ps
+cd /var/www/sunset-hotel-api && git pull origin main && cd backend && docker compose -p sunset-hotel up --build -d && docker compose -p sunset-hotel ps
 ```
 
 ---
@@ -204,7 +204,7 @@ cd /var/www/sunset-backend && git pull origin main && cd backend && docker compo
 #### 1. "error: Your local changes would be overwritten by merge" on `git pull`
 If you accidentally edited files directly on the VPS:
 ```bash
-cd /var/www/sunset-backend
+cd /var/www/sunset-hotel-api
 git stash
 git pull origin main
 ```

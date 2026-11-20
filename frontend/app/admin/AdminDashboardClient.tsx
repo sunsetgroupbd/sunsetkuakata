@@ -801,7 +801,7 @@ export function AdminDashboardClient() {
     // Exclude hidden leads from exports as requested
     const exportableLeads = filteredLeads.filter((l) => !hiddenLeadIds.has(l.id));
 
-    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Source,Duplicates,IP Address,Notes,Created Date";
+    const headerLine = "ID,Full Name,Phone,Email,Project,Package Tier,Status,Source,Duplicates,Notes,Created Date";
     const rows = exportableLeads.map((l) => {
       const norm = normalizePhone(l.phone);
       const dupCount = norm ? (duplicatePhoneCounts[norm] || 1) : 1;
@@ -816,7 +816,6 @@ export function AdminDashboardClient() {
         `"${l.status}"`,
         `"${src}"`,
         `"${dupCount > 1 ? `Duplicate (${dupCount}x)` : "Unique"}"`,
-        `"${l.ipAddress || ""}"`,
         `"${(l.notes || "").replace(/"/g, '""')}"`,
         `"${new Date(l.createdAt).toLocaleDateString()}"`,
       ].join(",");
@@ -877,8 +876,7 @@ export function AdminDashboardClient() {
             <td style="white-space: nowrap;">${escapeHtml(lead.packageSlug || "General")}</td>
             <td><span class="status-badge status-${escapeHtml(lead.status.toLowerCase())}">${escapeHtml(lead.status)}</span></td>
             <td style="font-size: 9.5px; white-space: nowrap; font-weight: 600; color: #1e40af;">${escapeHtml(src)}</td>
-            <td style="font-family: monospace; font-size: 9.5px; white-space: nowrap;">${lead.ipAddress ? escapeHtml(lead.ipAddress) : "—"}</td>
-            <td style="font-size: 10px; max-width: 230px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
+            <td style="font-size: 10px; max-width: 250px;">${escapeHtml(lead.notes || lead.message || "—")}</td>
             <td style="white-space: nowrap;">${new Date(lead.createdAt).toLocaleDateString()}</td>
           </tr>
         `;
@@ -1076,13 +1074,12 @@ export function AdminDashboardClient() {
               <th>Package Tier</th>
               <th>Status</th>
               <th>Source</th>
-              <th>IP Address</th>
               <th>Inquiry / Notes</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            ${rowsHtml || '<tr><td colspan="11" style="text-align: center; padding: 18px; color: #6b7280;">No exportable leads found matching current filters.</td></tr>'}
+            ${rowsHtml || '<tr><td colspan="10" style="text-align: center; padding: 18px; color: #6b7280;">No exportable leads found matching current filters.</td></tr>'}
           </tbody>
         </table>
 
@@ -1168,7 +1165,6 @@ export function AdminDashboardClient() {
         lead.fullName.toLowerCase().includes(query) ||
         lead.phone.includes(query) ||
         (lead.email && lead.email.toLowerCase().includes(query)) ||
-        (lead.ipAddress && lead.ipAddress.toLowerCase().includes(query)) ||
         (lead.message && lead.message.toLowerCase().includes(query));
 
       return matchProject && matchStatus && matchDate && matchQuery;
@@ -1809,14 +1805,6 @@ export function AdminDashboardClient() {
                                     {leadSource}
                                   </span>
                                 )}
-                                {lead.ipAddress && (
-                                  <span
-                                    className="font-mono text-[9px] text-grey-600 bg-ash px-1.5 py-0.5 rounded border border-ink/10 inline-flex items-center gap-0.5"
-                                    title={`Visitor IP: ${lead.ipAddress}`}
-                                  >
-                                    IP: {lead.ipAddress}
-                                  </span>
-                                )}
                               </div>
                             </td>
 
@@ -1984,14 +1972,6 @@ export function AdminDashboardClient() {
                                   }`}
                                 >
                                   {leadSource}
-                                </span>
-                              )}
-                              {lead.ipAddress && (
-                                <span
-                                  className="font-mono text-[9px] text-grey-600 bg-ash px-1 py-0.5 rounded border border-ink/10"
-                                  title={`Visitor IP: ${lead.ipAddress}`}
-                                >
-                                  IP: {lead.ipAddress}
                                 </span>
                               )}
                             </div>
@@ -2796,11 +2776,6 @@ export function AdminDashboardClient() {
                 </h3>
                 <p className="text-xs text-grey-700">
                   Client: {selectedLeadForNotes.fullName} ({selectedLeadForNotes.phone})
-                  {selectedLeadForNotes.ipAddress && (
-                    <span className="ml-2 font-mono text-[11px] text-grey-500">
-                      • IP: {selectedLeadForNotes.ipAddress}
-                    </span>
-                  )}
                 </p>
               </div>
               <button
