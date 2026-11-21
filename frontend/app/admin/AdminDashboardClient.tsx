@@ -67,7 +67,18 @@ interface EditablePackage {
   bookingMoney: number;
   stayDays?: number;
   stayDaysDfi?: number;
+  dayProfitDays?: number;
 }
+
+const PROJECT_SORT_ORDER: Record<string, number> = {
+  "dfi": 1,
+  "fantasy-island": 1,
+  "kuakata-hotel": 2,
+  "sunset-kuakata": 2,
+  "sun-care": 3,
+  "the-deck": 4,
+  "super-combo": 5,
+};
 
 interface AdminUser {
   id?: string;
@@ -181,6 +192,16 @@ export function AdminDashboardClient() {
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editBooking, setEditBooking] = useState<number>(0);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
+
+  // Sorted Packages (Ensuring The Deck is placed directly before Super Combo)
+  const sortedPackages = useMemo(() => {
+    return [...packagesList].sort((a, b) => {
+      const orderA = PROJECT_SORT_ORDER[a.projectSlug] ?? 99;
+      const orderB = PROJECT_SORT_ORDER[b.projectSlug] ?? 99;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.unitMultiplier - b.unitMultiplier;
+    });
+  }, [packagesList]);
 
   // Backend Connectivity Status
   const [isBackendConnected, setIsBackendConnected] = useState(false);
@@ -650,7 +671,24 @@ export function AdminDashboardClient() {
       if (res.ok) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-          setPackagesList(json.data);
+          const apiPkgs: EditablePackage[] = json.data;
+          const apiIds = new Set(apiPkgs.map((p) => p.id));
+          // Resilient merge: ensure all default packages (including The Deck) are present even if backend DB hasn't re-seeded
+          const missingDefaults: EditablePackage[] = seedPackages
+            .filter((p) => !apiIds.has(p.id))
+            .map((p) => ({
+              id: p.id,
+              projectSlug: p.projectSlug,
+              tier: p.tier,
+              nameEn: p.nameEn,
+              unitMultiplier: p.unitMultiplier,
+              price: p.price,
+              bookingMoney: p.bookingMoney,
+              stayDays: p.stayDays,
+              stayDaysDfi: p.stayDaysDfi,
+              dayProfitDays: p.dayProfitDays,
+            }));
+          setPackagesList([...apiPkgs, ...missingDefaults]);
         } else {
           loadDefaultPackages();
         }
@@ -673,6 +711,7 @@ export function AdminDashboardClient() {
       bookingMoney: p.bookingMoney,
       stayDays: p.stayDays,
       stayDaysDfi: p.stayDaysDfi,
+      dayProfitDays: p.dayProfitDays,
     }));
     setPackagesList(initialPkgs);
   };
@@ -1520,7 +1559,7 @@ export function AdminDashboardClient() {
             <BdtIcon className="w-4 h-4 text-green-900" />
             <span>Package Pricing Manager</span>
             <span className="bg-ink/5 text-grey-700 text-xs px-2 py-0.5 rounded-full">
-              {packagesList.length || 16}
+              {packagesList.length || 20}
             </span>
           </button>
 
@@ -2244,7 +2283,7 @@ export function AdminDashboardClient() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-ink/10">
-                    {packagesList.map((pkg) => {
+                    {sortedPackages.map((pkg) => {
                       const isEditing = editingPkgId === pkg.id;
 
                       return (
@@ -2298,8 +2337,16 @@ export function AdminDashboardClient() {
                             )}
                           </td>
                           <td className="py-3.5 px-4">
-                            {pkg.stayDays ? `${pkg.stayDays} days` : "—"}
-                            {pkg.stayDaysDfi ? ` (+ DFI ${pkg.stayDaysDfi}d)` : ""}
+                            {pkg.projectSlug === "the-deck" || pkg.dayProfitDays ? (
+                              <span className="font-semibold text-green-900">
+                                Day Profit: {pkg.dayProfitDays || pkg.stayDays} days
+                              </span>
+                            ) : (
+                              <>
+                                {pkg.stayDays ? `${pkg.stayDays} days` : "—"}
+                                {pkg.stayDaysDfi ? ` (+ DFI ${pkg.stayDaysDfi}d)` : ""}
+                              </>
+                            )}
                           </td>
                           <td className="py-3.5 px-4 text-right">
                             {isEditing ? (
@@ -2342,7 +2389,7 @@ export function AdminDashboardClient() {
 
               {/* MOBILE APP-STYLE CARD VIEW (Visible on mobile screens) */}
               <div className="block md:hidden divide-y divide-ink/10">
-                {packagesList.map((pkg) => {
+                {sortedPackages.map((pkg) => {
                   const isEditing = editingPkgId === pkg.id;
 
                   return (
@@ -2358,10 +2405,14 @@ export function AdminDashboardClient() {
                           </span>
                         </div>
 
-                        {(pkg.stayDays ?? 0) > 0 && (
+                        {((pkg.stayDays ?? 0) > 0 || (pkg.dayProfitDays ?? 0) > 0) && (
                           <span className="text-[11px] text-grey-600 bg-ash px-2 py-1 rounded-md text-right inline-flex items-center gap-1">
                             <Building2 className="w-3.5 h-3.5 text-grey-600 flex-shrink-0" />
-                            <span>{pkg.stayDays}d{pkg.stayDaysDfi ? ` + DFI ${pkg.stayDaysDfi}d` : ""}</span>
+                            <span>
+                              {pkg.projectSlug === "the-deck" || pkg.dayProfitDays
+                                ? `Day Profit: ${pkg.dayProfitDays || pkg.stayDays}d`
+                                : `${pkg.stayDays}d${pkg.stayDaysDfi ? ` + DFI ${pkg.stayDaysDfi}d` : ""}`}
+                            </span>
                           </span>
                         )}
                       </div>
