@@ -28,6 +28,10 @@ async function bootstrap() {
     "http://localhost:3001",
     "https://sunsetkuakatahotel.com",
     "https://www.sunsetkuakatahotel.com",
+    "https://sunsetgroupbd.com",
+    "https://www.sunsetgroupbd.com",
+    "http://sunsetgroupbd.com",
+    "http://www.sunsetgroupbd.com",
   ];
 
   const allowedOrigins = Array.from(new Set([...defaultOrigins, ...rawOrigins]));
@@ -40,6 +44,7 @@ async function bootstrap() {
         allowedOrigins.includes(origin) ||
         origin.endsWith(".vercel.app") ||
         origin.includes("sunsetkuakatahotel.com") ||
+        origin.includes("sunsetgroupbd.com") ||
         process.env.CORS_ORIGIN === "*"
       ) {
         return callback(null, true);

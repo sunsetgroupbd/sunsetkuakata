@@ -1261,8 +1261,12 @@ export function AdminDashboardClient() {
         return "Sunset Kuakata";
       case "super-combo":
         return "Super Combo (4-in-1)";
+      case "sunset-group":
+        return "Sunset Group (Corporate)";
+      case "general":
+        return "Sunset Group (General)";
       default:
-        return slug;
+        return slug || "Sunset Group";
     }
   };
 
@@ -1665,6 +1669,7 @@ export function AdminDashboardClient() {
                   <option value="kuakata-hotel">Sunset Kuakata</option>
                   <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
                   <option value="super-combo">Super Combo</option>
+                  <option value="sunset-group">Sunset Group (Corporate)</option>
                 </select>
 
                 {/* Status Filter */}
@@ -1837,7 +1842,9 @@ export function AdminDashboardClient() {
                                 {leadSource && (
                                   <span
                                     className={`inline-flex items-center gap-1 font-semibold text-[9.5px] px-1.5 py-0.5 rounded border ${
-                                      leadSource.includes("Facebook")
+                                      leadSource.toLowerCase().includes("sunset")
+                                        ? "bg-amber-100 text-amber-900 border-amber-300 font-bold"
+                                        : leadSource.includes("Facebook")
                                         ? "bg-blue-50 text-blue-700 border-blue-200"
                                         : leadSource.includes("Google")
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
@@ -2006,7 +2013,9 @@ export function AdminDashboardClient() {
                               {leadSource && (
                                 <span
                                   className={`inline-flex items-center gap-1 font-semibold text-[9px] px-1.5 py-0.2 rounded border ${
-                                    leadSource.includes("Facebook")
+                                    leadSource.toLowerCase().includes("sunset")
+                                      ? "bg-amber-100 text-amber-900 border-amber-300 font-bold"
+                                      : leadSource.includes("Facebook")
                                       ? "bg-blue-50 text-blue-700 border-blue-200"
                                       : leadSource.includes("Google")
                                       ? "bg-emerald-50 text-emerald-700 border-emerald-200"

@@ -7,10 +7,27 @@ import { UpdateInquiryDto } from "./dto/update-inquiry.dto";
 export class InquiriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateInquiryDto, ipAddress?: string) {
+  async create(dto: CreateInquiryDto, ipAddress?: string, origin?: string) {
     // Honeypot check: If bot fills "website", return success silently without database insertion
     if (dto.website && dto.website.length > 0) {
       return { id: "honeypot-ignored" };
+    }
+
+    const projectSlug = dto.projectSlug?.trim() || "sunset-group";
+
+    // Auto-detect source if not explicitly provided
+    let source = dto.source?.trim();
+    if (!source && origin) {
+      if (origin.includes("sunsetgroupbd.com")) {
+        source = "Sunset Group Website";
+      } else if (origin.includes("sunsetkuakatahotel.com")) {
+        source = "Sunset Kuakata Website";
+      }
+    }
+
+    let finalMessage = dto.message ? dto.message.trim() : "";
+    if (source && !finalMessage.toLowerCase().includes("[source:")) {
+      finalMessage = finalMessage ? `${finalMessage} [Source: ${source}]` : `[Source: ${source}]`;
     }
 
     try {
@@ -19,9 +36,9 @@ export class InquiriesService {
           fullName: dto.fullName.trim(),
           phone: dto.phone.trim(),
           email: dto.email ? dto.email.trim().toLowerCase() : null,
-          projectSlug: dto.projectSlug,
+          projectSlug,
           packageSlug: dto.packageSlug || null,
-          message: dto.message ? dto.message.trim() : null,
+          message: finalMessage || null,
           ipAddress: ipAddress ? ipAddress.trim() : null,
         },
       });
@@ -35,9 +52,9 @@ export class InquiriesService {
               fullName: dto.fullName.trim(),
               phone: dto.phone.trim(),
               email: dto.email ? dto.email.trim().toLowerCase() : null,
-              projectSlug: dto.projectSlug,
+              projectSlug,
               packageSlug: dto.packageSlug || null,
-              message: dto.message ? dto.message.trim() : null,
+              message: finalMessage || null,
               ipAddress: ipAddress ? ipAddress.trim() : null,
             },
           });
@@ -48,9 +65,9 @@ export class InquiriesService {
               fullName: dto.fullName.trim(),
               phone: dto.phone.trim(),
               email: dto.email ? dto.email.trim().toLowerCase() : null,
-              projectSlug: dto.projectSlug,
+              projectSlug,
               packageSlug: dto.packageSlug || null,
-              message: dto.message ? dto.message.trim() : null,
+              message: finalMessage || null,
             },
           });
         }

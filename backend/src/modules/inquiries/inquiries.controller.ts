@@ -43,7 +43,9 @@ export class InquiriesController {
       clientIp = clientIp.substring(7);
     }
 
-    const result = await this.inquiriesService.create(createDto, clientIp);
+    const origin = (req.headers["origin"] || req.headers["referer"] || "") as string;
+
+    const result = await this.inquiriesService.create(createDto, clientIp, origin);
     return ApiResponse.success(result, "Inquiry submitted successfully");
   }
 
