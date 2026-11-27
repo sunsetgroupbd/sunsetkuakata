@@ -122,8 +122,8 @@ export function AdminDashboardClient() {
   const [createAdminError, setCreateAdminError] = useState<string | null>(null);
   const [createAdminSuccess, setCreateAdminSuccess] = useState<string | null>(null);
 
-  // Navigation Tab State ("leads" | "packages" | "admins")
-  const [activeTab, setActiveTab] = useState<"leads" | "packages" | "admins">("leads");
+  // Navigation Tab State ("leads" | "sunset-group" | "packages" | "admins")
+  const [activeTab, setActiveTab] = useState<"leads" | "sunset-group" | "packages" | "admins">("leads");
 
   // Admin Users List State
   const [adminUsersList, setAdminUsersList] = useState<AdminUser[]>([]);
@@ -865,7 +865,10 @@ export function AdminDashboardClient() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `sunset-leads-export-${new Date().toISOString().slice(0, 10)}.csv`);
+    const exportFileName = activeTab === "sunset-group"
+      ? `sunset-group-corporate-leads-${new Date().toISOString().slice(0, 10)}.csv`
+      : `sunset-kuakata-investor-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.setAttribute("download", exportFileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1086,8 +1089,8 @@ export function AdminDashboardClient() {
 
         <div class="header">
           <div>
-            <h1 class="company-title">SUNSET KUAKATA HOTEL & RESORT LTD.</h1>
-            <p class="company-sub">Investor Leads & CRM Management Official Report</p>
+            <h1 class="company-title">${activeTab === "sunset-group" ? "SUNSET GROUP (CORPORATE PORTAL)" : "SUNSET KUAKATA HOTEL & RESORT LTD."}</h1>
+            <p class="company-sub">${activeTab === "sunset-group" ? "Official Corporate Inquiries Report (www.sunsetgroupbd.com)" : "Investor Leads & CRM Management Official Report"}</p>
           </div>
           <div class="report-meta">
             <div><strong>Generated:</strong> ${currentDate}</div>
@@ -1142,9 +1145,26 @@ export function AdminDashboardClient() {
     printWindow.document.close();
   };
 
+  // Helper to distinguish Sunset Group Corporate leads from Sunset Kuakata leads
+  const isSunsetGroupLead = (lead: Lead) => {
+    if (lead.projectSlug === "sunset-group" || lead.projectSlug === "general") return true;
+    const src = extractLeadSource(lead.message);
+    if (src && (src.toLowerCase().includes("sunset") || src.toLowerCase().includes("sunsetgroupbd"))) return true;
+    return false;
+  };
+
+  // Dedicated Scope Counts
+  const kuakataLeadsCount = useMemo(() => leads.filter((l) => !isSunsetGroupLead(l)).length, [leads]);
+  const sunsetGroupLeadsCount = useMemo(() => leads.filter(isSunsetGroupLead).length, [leads]);
+
   // Filtered Leads
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
+      // Partition by Tab (Sunset Kuakata vs Sunset Group Corporate)
+      const isSunset = isSunsetGroupLead(lead);
+      if (activeTab === "sunset-group" && !isSunset) return false;
+      if (activeTab === "leads" && isSunset) return false;
+
       // Visibility Filter (Active, Hidden, All)
       const isHidden = hiddenLeadIds.has(lead.id);
       if (leadVisibilityTab === "active" && isHidden) return false;
@@ -1208,11 +1228,18 @@ export function AdminDashboardClient() {
 
       return matchProject && matchStatus && matchDate && matchQuery;
     });
-  }, [leads, hiddenLeadIds, leadVisibilityTab, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, duplicatePhoneCounts]);
+  }, [leads, hiddenLeadIds, leadVisibilityTab, selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, duplicatePhoneCounts, activeTab]);
 
-  // Lead Counts for Tabs
-  const activeLeadsCount = useMemo(() => leads.filter((l) => !hiddenLeadIds.has(l.id)).length, [leads, hiddenLeadIds]);
-  const hiddenLeadsCount = useMemo(() => leads.filter((l) => hiddenLeadIds.has(l.id)).length, [leads, hiddenLeadIds]);
+  // Lead Counts for Tabs in Active Scope
+  const activeLeadsCount = useMemo(() => {
+    const scope = activeTab === "sunset-group" ? leads.filter(isSunsetGroupLead) : leads.filter((l) => !isSunsetGroupLead(l));
+    return scope.filter((l) => !hiddenLeadIds.has(l.id)).length;
+  }, [leads, hiddenLeadIds, activeTab]);
+
+  const hiddenLeadsCount = useMemo(() => {
+    const scope = activeTab === "sunset-group" ? leads.filter(isSunsetGroupLead) : leads.filter((l) => !isSunsetGroupLead(l));
+    return scope.filter((l) => hiddenLeadIds.has(l.id)).length;
+  }, [leads, hiddenLeadIds, activeTab]);
 
   // Page-wise Pagination
   const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
@@ -1221,19 +1248,26 @@ export function AdminDashboardClient() {
     return filteredLeads.slice(start, start + pageSize);
   }, [filteredLeads, currentPage, pageSize]);
 
+  // Reset filters when switching tabs
+  useEffect(() => {
+    setSelectedProjectFilter("all");
+    setCurrentPage(1);
+  }, [activeTab]);
+
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedProjectFilter, selectedStatusFilter, selectedDateFilter, customStartDate, customEndDate, searchQuery, leadVisibilityTab, pageSize]);
 
-  // Statistics
+  // Statistics for the Active Scope
   const stats = useMemo(() => {
-    const total = leads.length;
-    const newCount = leads.filter((l) => l.status === "NEW").length;
-    const contacted = leads.filter((l) => l.status === "CONTACTED").length;
-    const converted = leads.filter((l) => l.status === "CONVERTED").length;
+    const scope = activeTab === "sunset-group" ? leads.filter(isSunsetGroupLead) : leads.filter((l) => !isSunsetGroupLead(l));
+    const total = scope.length;
+    const newCount = scope.filter((l) => l.status === "NEW").length;
+    const contacted = scope.filter((l) => l.status === "CONTACTED").length;
+    const converted = scope.filter((l) => l.status === "CONVERTED").length;
     return { total, newCount, contacted, converted };
-  }, [leads]);
+  }, [leads, activeTab]);
 
   // Filtered Admins
   const filteredAdmins = useMemo(() => {
@@ -1537,28 +1571,45 @@ export function AdminDashboardClient() {
           </div>
         </div>
 
-        {/* Tab Navigation: Leads vs Packages */}
-        <div className="flex border-b border-ink/15 gap-2 sm:gap-8 overflow-x-auto pb-1">
+        {/* Tab Navigation: Kuakata Leads vs Sunset Group Leads vs Packages vs Admins */}
+        <div className="flex border-b border-ink/15 gap-2 sm:gap-6 overflow-x-auto pb-1">
           <button
             onClick={() => setActiveTab("leads")}
-            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${activeTab === "leads"
-              ? "border-green-900 text-green-900 font-bold"
-              : "border-transparent text-grey-700 hover:text-ink"
-              }`}
+            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+              activeTab === "leads"
+                ? "border-green-900 text-green-900 font-bold"
+                : "border-transparent text-grey-700 hover:text-ink"
+            }`}
           >
             <Users className="w-4 h-4" />
-            <span>Investor Leads CRM</span>
+            <span>Sunset Kuakata Leads</span>
             <span className="bg-green-900/10 text-green-900 text-xs px-2 py-0.5 rounded-full font-bold">
-              {leads.length}
+              {kuakataLeadsCount}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("sunset-group")}
+            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+              activeTab === "sunset-group"
+                ? "border-amber-600 text-amber-900 font-bold"
+                : "border-transparent text-grey-700 hover:text-ink"
+            }`}
+          >
+            <Building2 className="w-4 h-4 text-amber-600" />
+            <span>Sunset Group Leads</span>
+            <span className="bg-amber-100 text-amber-900 text-xs px-2 py-0.5 rounded-full font-bold border border-amber-300">
+              {sunsetGroupLeadsCount}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("packages")}
-            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${activeTab === "packages"
-              ? "border-green-900 text-green-900 font-bold"
-              : "border-transparent text-grey-700 hover:text-ink"
-              }`}
+            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+              activeTab === "packages"
+                ? "border-green-900 text-green-900 font-bold"
+                : "border-transparent text-grey-700 hover:text-ink"
+            }`}
           >
             <BdtIcon className="w-4 h-4 text-green-900" />
             <span>Package Pricing Manager</span>
@@ -1569,10 +1620,11 @@ export function AdminDashboardClient() {
 
           <button
             onClick={() => setActiveTab("admins")}
-            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${activeTab === "admins"
-              ? "border-green-900 text-green-900 font-bold"
-              : "border-transparent text-grey-700 hover:text-ink"
-              }`}
+            className={`pb-3 font-semibold text-xs sm:text-base border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+              activeTab === "admins"
+                ? "border-green-900 text-green-900 font-bold"
+                : "border-transparent text-grey-700 hover:text-ink"
+            }`}
           >
             <ShieldCheck className="w-4 h-4 text-green-900" />
             <span>Admin Users</span>
@@ -1582,9 +1634,37 @@ export function AdminDashboardClient() {
           </button>
         </div>
 
-        {/* TAB 1: LEADS CRM */}
-        {activeTab === "leads" && (
+        {/* TAB 1 & TAB 2: LEADS CRM (Kuakata & Sunset Group Views) */}
+        {(activeTab === "leads" || activeTab === "sunset-group") && (
           <div className="space-y-6">
+
+            {/* Sunset Group Corporate Banner (Visible on Sunset Group Tab) */}
+            {activeTab === "sunset-group" && (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center flex-shrink-0 text-amber-900 shadow-2xs">
+                    <Building2 className="w-5 h-5 text-amber-900" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-amber-950 flex items-center gap-2 flex-wrap">
+                      <span>Sunset Group Corporate Inquiries</span>
+                      <span className="text-[10px] bg-white border border-amber-300 text-amber-900 font-mono px-2 py-0.5 rounded-full">
+                        www.sunsetgroupbd.com
+                      </span>
+                    </h3>
+                    <p className="text-xs text-amber-800 mt-0.5">
+                      Dedicated inbox for corporate partnerships and direct inquiries submitted via the Sunset Group portal.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 bg-white text-emerald-800 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Cross-Domain Connected</span>
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Lead Visibility View Tabs (Active vs Hidden/Excluded vs All) */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-ink/10 shadow-xs">
@@ -1663,13 +1743,26 @@ export function AdminDashboardClient() {
                   onChange={(e) => setSelectedProjectFilter(e.target.value)}
                   className="w-full sm:w-auto px-2.5 sm:px-3 py-2 bg-paper border border-ink/20 rounded-xl text-xs font-medium cursor-pointer focus:border-green-900 focus:outline-none truncate"
                 >
-                  <option value="all">All Projects</option>
-                  <option value="sun-care">Sun Care Hospital</option>
-                  <option value="dfi">Dhaka Fantasy Island</option>
-                  <option value="kuakata-hotel">Sunset Kuakata</option>
-                  <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
-                  <option value="super-combo">Super Combo</option>
-                  <option value="sunset-group">Sunset Group (Corporate)</option>
+                  {activeTab === "sunset-group" ? (
+                    <>
+                      <option value="all">All Corporate Inquiries</option>
+                      <option value="sunset-group">Corporate Main (sunsetgroupbd.com)</option>
+                      <option value="general">General Inquiries</option>
+                      <option value="sun-care">Sun Care Hospital</option>
+                      <option value="kuakata-hotel">Sunset Kuakata</option>
+                      <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
+                      <option value="dfi">Dhaka Fantasy Island</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="all">All Kuakata Projects</option>
+                      <option value="kuakata-hotel">Sunset Kuakata</option>
+                      <option value="the-deck">The Deck (Cox&apos;s Bazar)</option>
+                      <option value="sun-care">Sun Care Hospital</option>
+                      <option value="dfi">Dhaka Fantasy Island</option>
+                      <option value="super-combo">Super Combo (4-in-1)</option>
+                    </>
+                  )}
                 </select>
 
                 {/* Status Filter */}
@@ -1779,10 +1872,13 @@ export function AdminDashboardClient() {
                       </tr>
                     ) : (
                       paginatedLeads.map((lead) => {
+                        const isSunsetLead = isSunsetGroupLead(lead);
                         const whatsappMsg = encodeURIComponent(
-                          `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
-                            lead.projectSlug
-                          )}). How may our investment advisory desk assist you today?`
+                          isSunsetLead
+                            ? `Assalamu Alaikum ${lead.fullName}, thank you for reaching out to Sunset Group (www.sunsetgroupbd.com). How may our corporate advisory desk assist you today?`
+                            : `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
+                                lead.projectSlug
+                              )}). How may our investment advisory desk assist you today?`
                         );
                         const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
                         const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
@@ -1973,10 +2069,13 @@ export function AdminDashboardClient() {
                   </div>
                 ) : (
                   paginatedLeads.map((lead) => {
+                    const isSunsetLead = isSunsetGroupLead(lead);
                     const whatsappMsg = encodeURIComponent(
-                      `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
-                        lead.projectSlug
-                      )}). How may our investment advisory desk assist you today?`
+                      isSunsetLead
+                        ? `Assalamu Alaikum ${lead.fullName}, thank you for reaching out to Sunset Group (www.sunsetgroupbd.com). How may our corporate advisory desk assist you today?`
+                        : `Assalamu Alaikum ${lead.fullName}, thank you for your inquiry about Sunset Kuakata (${getProjectName(
+                            lead.projectSlug
+                          )}). How may our investment advisory desk assist you today?`
                     );
                     const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
                     const waPhone = cleanPhone.startsWith("88") ? cleanPhone : `88${cleanPhone}`;
